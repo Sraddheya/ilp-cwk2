@@ -2,18 +2,18 @@ package uk.ac.ed.inf;
 
 import java.sql.*;
 
-public class FlightPath
+public class Delivery
 {
     private String jdbcString;
 
     /**
      * Constructor method
      */
-    public FlightPath(String jdbcString){
+    public Delivery(String jdbcString){
         this.jdbcString = jdbcString;
     }
 
-    public boolean createFlightPath(){
+    public boolean createDelivery(){
         try {
 
             //CONNECTING TO A DATABASE
@@ -22,13 +22,13 @@ public class FlightPath
             // Create a statement object that we can use for running various SQL statement commands against the database
             Statement statement = conn.createStatement();
 
-            //DROPPING FLIGHTPATH IF IT ALREADY EXISTS
+            //DROPPING DELIVERIES IF IT ALREADY EXISTS
             DatabaseMetaData databaseMetadata = conn.getMetaData();
-            ResultSet resultSet2 = databaseMetadata.getTables(null, null, "FLIGHTPATH", null);
-            if (resultSet2.next()) {statement.execute("drop table flightpath");}
+            ResultSet resultSet1 = databaseMetadata.getTables(null, null, "DELIVERIES", null);
+            if (resultSet1.next()) { statement.execute("drop table deliveries"); }
 
             //CREATING A DATABASE TABLE
-            statement.execute("create table flightpath(" + "orderNo char(8), " + "fromLongitude double, " + "fromLatitude double, " + "angle integer, " + "toLongitude double, " + "toLatitude double)");
+            statement.execute("create table deliveries(" + "orderNo char(8), " + "deliveredTo varchar(19), " + "costInPence int)");
 
             return true;
 
@@ -38,9 +38,8 @@ public class FlightPath
         }
     }
 
-
-
     public static void main( String[] args ){
-        //System.out.println(createFlightPath());
+        //System.out.println(createDelivery());
+
     }
 }

@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -10,50 +12,27 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
-public class What3Words
+public class Buildings
 {
-    private String machine;
-    private String port;
+    private static String machine = "localhost";
+    private static String port = "9898";
 
     /**
      * Immutable single client to be used for all requests
      */
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    /**
-     * Class to help deserialise the JSON record
-     */
-    public static class details{
-        String country;
-        cdet square;
-        String nearestPlace;
-        ll coordinates;
-        String words;
-        String language;
-        String map;
-
-        public static class cdet{
-            ll southwest;
-            ll northeast;
-        }
-
-        public static class ll{
-            double lng;
-            double lat;
-        }
-    }
-
-    public What3Words (String machine, String port){
+    public Buildings (String machine, String port){
         this.machine = machine;
         this.port = port;
     }
 
-    public LongLat wToLonLat(String w3w){
-        String[] words = w3w.split("\\.");
-
+    public static void main( String[] args ) {
         //Perform request (HttpRequest assumes that it is a GET request by default)
-        String urlString = "http://" + machine + ":" + port + "/words/" + words[0] + "/" + words[1] + "/" + words[2] + "/details.json";
+        String urlString = "http://" + machine + ":" + port + "/buildings/landmarks.geojson";
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlString)).build();
 
         //Send request to the Http Client
@@ -68,14 +47,9 @@ public class What3Words
         }
 
         //Deserialise response
-        Type listType = new TypeToken<What3Words.details>() {}.getType();
-        What3Words.details c = new Gson().fromJson(response.body(),listType);
+        FeatureCollection fc = FeatureCollection.fromJson(response.body());
+        List<Feature> x = fc.features();
 
-        return new LongLat(c.coordinates.lng, c.coordinates.lat);
-    }
-
-    public static void main( String[] args ) {
-
-
+        System.out.println(x);
     }
 }
