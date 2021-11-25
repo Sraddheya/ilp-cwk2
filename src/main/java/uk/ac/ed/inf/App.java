@@ -3,17 +3,17 @@ package uk.ac.ed.inf;
 import java.util.ArrayList;
 import java.util.List;
 
-public class App 
+public class App
 {
     private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
-    private static final String JDBCSTR = "jdbc:derby://localhost:9876/derbyDB";
     private static final String TESTDATE = "2023-12-31";
 
 
     public static void main( String[] args ) {
 
+        /**
         //Create databases
         Delivery delivery = new Delivery(MACHINE, JDBCPORT);
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
@@ -28,19 +28,30 @@ public class App
         ArrayList<Orders.OrdersInfo> ordersList = orders.getOrders(TESTDATE);
 
         OrderDetails details = new OrderDetails(MACHINE, JDBCPORT);
-        //details.getItems("1ad5f1ff");
-
-        //What3Words w3w = new What3Words(MACHINE, PORT);
+        What3Words w3w = new What3Words(MACHINE, WEBPORT);
+        Menus menus = new Menus(MACHINE, WEBPORT);
 
         for (Orders.OrdersInfo o : ordersList){
             //Get items for orderNo
             ArrayList<String> itemsList = details.getItems(o.orderNo);
 
             //Get location of restaurants that serve items
+            ArrayList<String> locationList = menus.getLocations(itemsList);
+
+            //Turn all locations from w3w into longlat
+            LongLat ordll = w3w.wToLonLat(o.deliverTo);
+            ArrayList<LongLat> locListll = new ArrayList<>();
+
+            for (String l: locationList){
+                locListll.add(w3w.wToLonLat(l));
+            }
+
             //Plan route
             //Check if there is enough moves
             //Add to databases
-        }
+        }**/
+
+        
 
     }
 }

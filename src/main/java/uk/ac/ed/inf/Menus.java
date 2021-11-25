@@ -12,8 +12,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Class related to getting details about the shops and their menu's by connecting
@@ -22,6 +22,7 @@ import java.util.HashMap;
 public class Menus {
     private String machine;
     private String port;
+    private List<ShopDetails> shopList;
 
     /**
      * Immutable single client to be used for all requests
@@ -47,24 +48,15 @@ public class Menus {
      *
      * @param machine machine to be used in HTTP requests
      * @param port port to be use din HTTP requests
-     */
-    public Menus (String machine, String port){
-        this.machine = machine;
-        this.port = port;
-    }
-
-    /**
-     *
-     * @param args items to be delivered (as a variable number of strings)
      * @return cost of delivery
      * @throws ConnectException a connect error occurred because the webserver is
      *         not running or not running on the correct port
      * @throws IOException an Input/Output error occurred
      * @throws InterruptedException an interrupt error occurred
      */
-    public int getMenuInfo (String ...args){
-        //Standard delivery charge
-        int total = 50;
+    public Menus (String machine, String port){
+        this.machine = machine;
+        this.port = port;
 
         //Perform request (HttpRequest assumes that it is a GET request by default)
         String urlString = "http://" + machine + ":" + port + "/menus/menus.json";
@@ -83,30 +75,29 @@ public class Menus {
 
         //Deserialise response
         Type listType = new TypeToken<ArrayList<ShopDetails>>() {}.getType();
-        ArrayList<ShopDetails> shopList = new Gson().fromJson(response.body(), listType);
+        this.shopList = new Gson().fromJson(response.body(), listType);
+    }
 
-        /**Put into hash map
-        HashMap<String, Integer> item = new HashMap<String, Integer>();
-        for (String param : args) {
-            for (ShopDetails shop : shopList){
-                for (ShopDetails.Menu food : shop.menu){
-                    item.put(food.item, food.pence);
-                }
-            }
-        }**/
 
+    public ArrayList<String> getLocations (ArrayList<String> items){
+        ArrayList<String> locations = new ArrayList<>();
 
         //Calculate total cost of having items delivered
-        for (String param : args) {
+        for (String i : items) {
             for (ShopDetails shop : shopList){
                 for (ShopDetails.Menu food : shop.menu){
-                    if (food.item.equals(param)){
-                        total += food.pence;
+                    if (food.item.equals(i)){
+                        if (!locations.contains(shop.location)){
+                            locations.add(shop.location);
+                        }
                     }
                 }
             }
         }
+        return locations;
+    }
 
-        return total;
+    public int getDeliveryCost(String ...args){
+        return 0;
     }
 }
