@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 public class App
 {
@@ -51,7 +52,19 @@ public class App
             //Add to databases
         }**/
 
-        
+        What3Words w3w = new What3Words(MACHINE, WEBPORT);
 
+        String orderNo = "1ad5f1ff";
+
+        ArrayList<String> items = new ArrayList<>();
+        items.add("Can of Fanta");
+        items.add("Chicken and avocado wrap");
+        items.add("Hummus, falafel and spicy tomato French country roll");
+
+        ArrayList<LongLat> locs = new ArrayList<>();
+        locs.add(w3w.wToLonLat("pest.round.peanut"));
+        locs.add(w3w.wToLonLat("sketch.spill.puzzle"));
+
+        NoFlyZones nfz = new NoFlyZones(MACHINE, WEBPORT);
     }
 }
