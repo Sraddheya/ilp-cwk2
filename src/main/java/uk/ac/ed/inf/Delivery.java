@@ -4,20 +4,22 @@ import java.sql.*;
 
 public class Delivery
 {
-    private String jdbcString;
+    private String machine;
+    private String port;
 
     /**
      * Constructor method
      */
-    public Delivery(String jdbcString){
-        this.jdbcString = jdbcString;
+    public Delivery(String machine, String port){
+        this.machine = machine;
+        this.port = port;
     }
 
     public boolean createDelivery(){
         try {
 
             //CONNECTING TO A DATABASE
-            Connection conn = DriverManager.getConnection(jdbcString);
+            Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
 
             // Create a statement object that we can use for running various SQL statement commands against the database
             Statement statement = conn.createStatement();

@@ -1,24 +1,22 @@
 package uk.ac.ed.inf;
 
-import java.sql.*;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class App 
 {
     private static final String MACHINE = "localhost";
-    private static final String PORT = "9898";
+    private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
     private static final String JDBCSTR = "jdbc:derby://localhost:9876/derbyDB";
-    private static final String TESTDATE = "2022-04-11";
+    private static final String TESTDATE = "2023-12-31";
 
 
     public static void main( String[] args ) {
 
         //Create databases
-        Delivery delivery = new Delivery(JDBCSTR);
-        FlightPath flightPath = new FlightPath(JDBCSTR);
+        Delivery delivery = new Delivery(MACHINE, JDBCPORT);
+        FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
 
         if (!delivery.createDelivery() || !flightPath.createFlightPath()) {
             //Error message if databases could not be made
@@ -27,50 +25,22 @@ public class App
 
         //Get orders for specific date
         Orders orders = new Orders(MACHINE, JDBCPORT);
-        orders.getOrders(TESTDATE);
-        //ArrayList<Orders.OrdersInfo> ordersList = orders.getOrders(TESTDATE);
+        ArrayList<Orders.OrdersInfo> ordersList = orders.getOrders(TESTDATE);
 
-        /**
-        for (Orders.OrdersInfo o : ordersList) {
-            System.out.println(o.orderNo);
-            System.out.println(o.customer);
-            System.out.println(o.deliverTo);
-        }**/
-
+        OrderDetails details = new OrderDetails(MACHINE, JDBCPORT);
+        //details.getItems("1ad5f1ff");
 
         //What3Words w3w = new What3Words(MACHINE, PORT);
 
-        /**
-        //CONNECTING TO A DATABASE----------------------------------------
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(jdbcString);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        for (Orders.OrdersInfo o : ordersList){
+            //Get items for orderNo
+            ArrayList<String> itemsList = details.getItems(o.orderNo);
+
+            //Get location of restaurants that serve items
+            //Plan route
+            //Check if there is enough moves
+            //Add to databases
         }
-
-        //CREATE array of orders
-        ArrayList<Orders> orderList = new ArrayList<>();
-
-        //READ ORDERS OF SPECIFIC DATE
-        final String coursesQuery = "select * from orders where deliveryDate=(?)";
-        try {
-            PreparedStatement psCourseQuery = conn.prepareStatement(coursesQuery);
-            psCourseQuery.setString(1, sqlDate);
-            ResultSet rs = psCourseQuery.executeQuery();
-            while (rs.next()) {
-                Orders temp = new Orders(rs.getString("orderNo"), rs.getString("customer"), rs.getString("deliverTo"));
-                orderList.add(temp);
-                System.out.println(temp.customer);
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }**/
-
-        //CONVERT WHAT3WORDS INTO LONG LAT
-
-
-
 
     }
 }

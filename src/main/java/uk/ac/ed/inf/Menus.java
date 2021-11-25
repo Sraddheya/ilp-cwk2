@@ -13,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 /**
  * Class related to getting details about the shops and their menu's by connecting
@@ -53,8 +54,6 @@ public class Menus {
     }
 
     /**
-     * Calculates the total cost of having the given items delivered (including
-     * the standard delivery charge of 50p).
      *
      * @param args items to be delivered (as a variable number of strings)
      * @return cost of delivery
@@ -63,7 +62,7 @@ public class Menus {
      * @throws IOException an Input/Output error occurred
      * @throws InterruptedException an interrupt error occurred
      */
-    public int getDeliveryCost (String ...args){
+    public int getMenuInfo (String ...args){
         //Standard delivery charge
         int total = 50;
 
@@ -85,6 +84,17 @@ public class Menus {
         //Deserialise response
         Type listType = new TypeToken<ArrayList<ShopDetails>>() {}.getType();
         ArrayList<ShopDetails> shopList = new Gson().fromJson(response.body(), listType);
+
+        /**Put into hash map
+        HashMap<String, Integer> item = new HashMap<String, Integer>();
+        for (String param : args) {
+            for (ShopDetails shop : shopList){
+                for (ShopDetails.Menu food : shop.menu){
+                    item.put(food.item, food.pence);
+                }
+            }
+        }**/
+
 
         //Calculate total cost of having items delivered
         for (String param : args) {

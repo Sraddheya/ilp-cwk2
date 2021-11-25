@@ -3,22 +3,16 @@ package uk.ac.ed.inf;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class Orders{
+public class OrderDetails {
     private String machine;
     private String port;
 
-    public class OrdersInfo{
-        String orderNo;
-        String customer;
-        String deliverTo;
-    }
-
-    public Orders (String machine, String port){
+    public OrderDetails(String machine, String port){
         this.machine = machine;
         this.port = port;
     }
 
-    public ArrayList<OrdersInfo> getOrders(String ordDate){
+    public ArrayList<String> getItems(String ordNo){
 
         //CONNECTING TO A DATABASE
         Connection conn = null;
@@ -29,26 +23,24 @@ public class Orders{
         }
 
         //CREATE array of orders
-        ArrayList<OrdersInfo> ordersList = new ArrayList<>();
+        ArrayList<String> itemList = new ArrayList<>();
 
         //READ ORDERS OF SPECIFIC DATE
-        final String coursesQuery = "select * from orders where deliveryDate=(?)";
+        final String coursesQuery = "select * from orderDetails where orderNo=(?)";
         try {
             PreparedStatement psCourseQuery = conn.prepareStatement(coursesQuery);
-            psCourseQuery.setString(1, ordDate);
+            psCourseQuery.setString(1, ordNo);
             ResultSet rs = psCourseQuery.executeQuery();
             while (rs.next()) {
-                OrdersInfo order = new OrdersInfo();
-                order.orderNo = rs.getString("orderNo");
-                order.customer = rs.getString("customer");
-                order.deliverTo = rs.getString("deliverTo");
-                ordersList.add(order);
+                String item = rs.getString("item");
+                System.out.println(item);
+                itemList.add(item);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
-        return ordersList;
+        return itemList;
     }
 
 }
