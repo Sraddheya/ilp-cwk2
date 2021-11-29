@@ -1,8 +1,9 @@
 package uk.ac.ed.inf;
 
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
+
 import java.util.ArrayList;
-import java.util.List;
-import java.util.WeakHashMap;
 
 public class App
 {
@@ -52,7 +53,7 @@ public class App
             //Add to databases
         }**/
 
-        What3Words w3w = new What3Words(MACHINE, WEBPORT);
+        /**What3Words w3w = new What3Words(MACHINE, WEBPORT);
 
         String orderNo = "1ad5f1ff";
 
@@ -61,10 +62,36 @@ public class App
         items.add("Chicken and avocado wrap");
         items.add("Hummus, falafel and spicy tomato French country roll");
 
-        ArrayList<LongLat> locs = new ArrayList<>();
+        ArrayList<LongL at> locs = new ArrayList<>();
         locs.add(w3w.wToLonLat("pest.round.peanut"));
-        locs.add(w3w.wToLonLat("sketch.spill.puzzle"));
+        locs.add(w3w.wToLonLat("sketch.spill.puzzle"));**/
 
-        NoFlyZones nfz = new NoFlyZones(MACHINE, WEBPORT);
+        //55.944377, 03.189904
+
+        /**
+        ArrayList<FlightPath.FlightDetails> flight = new ArrayList<>();
+        FlightPath.FlightDetails f = new FlightPath.FlightDetails();
+        f.orderNo = "123";
+        f.fromLong = -3.191248;
+        f.fromLat = 55.943892;
+        f.angle = 0;
+        f.toLong = -3.187052;
+        f.toLat = 55.944534;
+
+        FlightPath.FlightDetails g = new FlightPath.FlightDetails();
+        g.orderNo = "124";
+        g.fromLong = -3.187052;
+        g.fromLat = 55.944534;
+        g.angle = 0;
+        g.toLong = -3.187675;
+        g.toLat = 55.943989;
+
+        flight.add(f);
+        flight.add(g);
+
+        FlightPath fp = new FlightPath(MACHINE, WEBPORT);
+        fp.addFlightPath(flight, TESTDATE);
+         **/
+
     }
 }
