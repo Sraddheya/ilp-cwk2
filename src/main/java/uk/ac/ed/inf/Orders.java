@@ -7,7 +7,7 @@ public class Orders{
     private String machine;
     private String port;
 
-    public class OrdersInfo{
+    public static class OrdersInfo{
         String orderNo;
         String customer;
         String deliverTo;

@@ -2,8 +2,7 @@ package uk.ac.ed.inf;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -30,7 +29,7 @@ public class Buildings
         this.port = port;
     }
 
-    public static void main( String[] args ) {
+    public void getLandmarks(){
         //Perform request (HttpRequest assumes that it is a GET request by default)
         String urlString = "http://" + machine + ":" + port + "/buildings/landmarks.geojson";
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlString)).build();
@@ -51,5 +50,36 @@ public class Buildings
         List<Feature> x = fc.features();
 
         System.out.println(x);
+    }
+
+    public static void main( String[] args ) {
+        //Perform request (HttpRequest assumes that it is a GET request by default)
+        String urlString = "http://" + machine + ":" + port + "/buildings/landmarks.geojson";
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlString)).build();
+
+        //Send request to the Http Client
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (ConnectException e){
+            System.out.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
+            System.exit(1); // Exit the application
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //Deserialise response
+        FeatureCollection fc = FeatureCollection.fromJson(response.body());
+        List<Feature> fcList = fc.features();
+
+        ArrayList<Point> landmarks = new ArrayList<>();
+
+        for (Feature f : fcList){
+            Geometry g = f.geometry();
+            Point p = (Point)g;
+            landmarks.add(p);
+            System.out.println(p);
+        }
+
     }
 }

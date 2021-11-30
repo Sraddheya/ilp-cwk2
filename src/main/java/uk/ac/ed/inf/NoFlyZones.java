@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import com.mapbox.geojson.*;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
+import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
@@ -60,23 +62,27 @@ public class NoFlyZones {
             Polygon p = (Polygon)g;
             polygons.add(p);
         }
-
-        /**
-        for (Polygon p : polygons){
-            System.out.println(p.coordinates().contains(Point.fromLngLat( 55.944377, -3.1906419)));
-            System.out.println(p.coordinates().contains(Point.fromLngLat( -3.1906419, 55.944377)));
-            System.out.println(polygons.contains(Point.fromLngLat( -3.191749, 55.943093)));
-            System.out.println(polygons.contains(Point.fromLngLat( 55.943093 , -3.191749)));
-
-        }
-
-        //LongLat x = new LongLat(-3.189904, 55.944377);
-
-        //System.out.println(polygons.contains(Point.fromLngLat( -3.191749, 55.943093)));
-        //System.out.println(polygons.contains(Point.fromLngLat( 55.943093 , -3.191749)));
-
-        //System.out.println(polygons.get(0).toString());**/
-
         return polygons;
+    }
+
+    public ArrayList<Line2D> getPerimeter(ArrayList<Polygon> polygons){
+        ArrayList<Line2D> lines = new ArrayList<>();
+
+        for (Polygon p : polygons){
+            int numPoints = p.coordinates().get(0).size();
+
+            for (int i = 0; i<numPoints-1; i++){
+                Point p1 = p.coordinates().get(0).get(i);
+                Point p2 = p.coordinates().get(0).get(i+1);
+                Line2D line = new Line2D.Double(p1.longitude(), p1.latitude(), p2.longitude(), p2.latitude());
+                lines.add(line);
+            }
+            //Add line from end to beginning of perimeter
+            Point p1 = p.coordinates().get(0).get(numPoints-1);
+            Point p2 = p.coordinates().get(0).get(0);
+            Line2D line = new Line2D.Double(p1.longitude(), p1.latitude(), p2.longitude(), p2.latitude());
+            lines.add(line);
+        }
+        return lines;
     }
 }

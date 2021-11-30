@@ -3,6 +3,7 @@ package uk.ac.ed.inf;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 
 public class App
@@ -29,6 +30,8 @@ public class App
         Orders orders = new Orders(MACHINE, JDBCPORT);
         ArrayList<Orders.OrdersInfo> ordersList = orders.getOrders(TESTDATE);
 
+        //Sort orders
+
         OrderDetails details = new OrderDetails(MACHINE, JDBCPORT);
         What3Words w3w = new What3Words(MACHINE, WEBPORT);
         Menus menus = new Menus(MACHINE, WEBPORT);
@@ -53,45 +56,60 @@ public class App
             //Add to databases
         }**/
 
-        /**What3Words w3w = new What3Words(MACHINE, WEBPORT);
+        /**
+         //Create databases
+         Delivery delivery = new Delivery(MACHINE, JDBCPORT);
+         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
 
-        String orderNo = "1ad5f1ff";
+         if (!delivery.createDelivery() || !flightPath.createFlightPath()) {
+         //Error message if databases could not be made
+         System.out.println("ERROR: Database tables could not be made");
+         }**/
 
+        //TEST WITH ONLY ONE ORDER
+        What3Words w3w = new What3Words(MACHINE, WEBPORT);
+        Menus menus = new Menus(MACHINE, WEBPORT);
+
+        //Hard coded order details for one order
+        Orders.OrdersInfo order = new Orders.OrdersInfo();
+        order.orderNo = "1ad5f1ff";
+        order.customer = "s2335903";
+        order.deliverTo = "spell.stick.scale";
+
+        //Longlat coordinate of order destination
+        LongLat ordDest = w3w.wToLonLat(order.deliverTo);
+
+        //Got order items for the one order
         ArrayList<String> items = new ArrayList<>();
         items.add("Can of Fanta");
         items.add("Chicken and avocado wrap");
         items.add("Hummus, falafel and spicy tomato French country roll");
 
-        ArrayList<LongL at> locs = new ArrayList<>();
-        locs.add(w3w.wToLonLat("pest.round.peanut"));
-        locs.add(w3w.wToLonLat("sketch.spill.puzzle"));**/
+        //Get location of restaurants that serve items
+        ArrayList<String> locationList = menus.getLocations(items);
 
-        //55.944377, 03.189904
+        //Turn all locations from w3w into longlat
+        ArrayList<LongLat> locListll = new ArrayList<>();
+        for (String l: locationList){
+            locListll.add(w3w.wToLonLat(l));
+        }
+        locListll.add(ordDest);
 
-        /**
-        ArrayList<FlightPath.FlightDetails> flight = new ArrayList<>();
-        FlightPath.FlightDetails f = new FlightPath.FlightDetails();
-        f.orderNo = "123";
-        f.fromLong = -3.191248;
-        f.fromLat = 55.943892;
-        f.angle = 0;
-        f.toLong = -3.187052;
-        f.toLat = 55.944534;
+        //Get perimeter
+        NoFlyZones nfz = new NoFlyZones(MACHINE, WEBPORT);
+        ArrayList<Polygon> polys = nfz.getPolygons();
+        ArrayList<Line2D> lines = nfz.getPerimeter(polys);
 
-        FlightPath.FlightDetails g = new FlightPath.FlightDetails();
-        g.orderNo = "124";
-        g.fromLong = -3.187052;
-        g.fromLat = 55.944534;
-        g.angle = 0;
-        g.toLong = -3.187675;
-        g.toLat = 55.943989;
+        //Starting point
+        LongLat currll = new LongLat(-3.186874, 55.9444494);
 
-        flight.add(f);
-        flight.add(g);
+        //Store moves
+        ArrayList<FlightPath.FlightDetails> move = new ArrayList<>();
 
-        FlightPath fp = new FlightPath(MACHINE, WEBPORT);
-        fp.addFlightPath(flight, TESTDATE);
-         **/
+        while (!currll.closeTo(ordDest)){
+            //Get closest location
+
+        }
 
     }
 }
