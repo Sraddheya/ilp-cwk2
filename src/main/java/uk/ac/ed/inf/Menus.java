@@ -57,6 +57,22 @@ public class Menus {
     public Menus (String machine, String port){
         this.machine = machine;
         this.port = port;
+    }
+
+    /**
+     * Calculates the total cost of having the given items delivered (including
+     * the standard delivery charge of 50p).
+     *
+     * @param items items to be delivered (as a variable number of strings)
+     * @return cost of delivery
+     * @throws ConnectException a connect error occurred because the webserver is
+     *         not running or not running on the correct port
+     * @throws IOException an Input/Output error occurred
+     * @throws InterruptedException an interrupt error occurred
+     */
+    public int getDeliveryCost (ArrayList<String> items){
+        //Standard delivery charge
+        int total = 50;
 
         //Perform request (HttpRequest assumes that it is a GET request by default)
         String urlString = "http://" + machine + ":" + port + "/menus/menus.json";
@@ -76,13 +92,24 @@ public class Menus {
         //Deserialise response
         Type listType = new TypeToken<ArrayList<ShopDetails>>() {}.getType();
         this.shopList = new Gson().fromJson(response.body(), listType);
-    }
 
+        //Calculate total cost of having items delivered
+        for (String param : items) {
+            for (ShopDetails shop : shopList){
+                for (ShopDetails.Menu food : shop.menu){
+                    if (food.item.equals(param)){
+                        total += food.pence;
+                    }
+                }
+            }
+        }
+
+        return total;
+    }
 
     public ArrayList<String> getLocations (ArrayList<String> items){
         ArrayList<String> locations = new ArrayList<>();
 
-        //Calculate total cost of having items delivered
         for (String i : items) {
             for (ShopDetails shop : shopList){
                 for (ShopDetails.Menu food : shop.menu){
@@ -97,7 +124,4 @@ public class Menus {
         return locations;
     }
 
-    public int getDeliveryCost(String ...args){
-        return 0;
-    }
 }

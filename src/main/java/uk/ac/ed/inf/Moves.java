@@ -34,7 +34,7 @@ public class Moves {
         return curr;
     }
 
-    public int getAngle(LongLat currll, LongLat destll){
+    /**public int getAngle(LongLat currll, LongLat destll){
         double y = currll.latitude - destll.latitude;
         double x = currll.longitude - destll.longitude;
         double angle = Math.atan2(y, x);
@@ -59,5 +59,5 @@ public class Moves {
         }
 
         return moves;
-    }
+    }**/
 }

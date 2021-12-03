@@ -33,7 +33,6 @@ public class OrderDetails {
             ResultSet rs = psCourseQuery.executeQuery();
             while (rs.next()) {
                 String item = rs.getString("item");
-                System.out.println(item);
                 itemList.add(item);
             }
         } catch (SQLException throwables) {

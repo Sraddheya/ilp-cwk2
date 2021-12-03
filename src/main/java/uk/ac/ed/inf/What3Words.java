@@ -74,8 +74,4 @@ public class What3Words
         return new LongLat(c.coordinates.lng, c.coordinates.lat);
     }
 
-    public static void main( String[] args ) {
-
-
-    }
 }
