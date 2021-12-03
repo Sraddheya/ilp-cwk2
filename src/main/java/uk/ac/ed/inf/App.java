@@ -57,15 +57,6 @@ public class App
         }**/
 
         /**
-         //Create databases
-         Delivery delivery = new Delivery(MACHINE, JDBCPORT);
-         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
-
-         if (!delivery.createDelivery() || !flightPath.createFlightPath()) {
-         //Error message if databases could not be made
-         System.out.println("ERROR: Database tables could not be made");
-         }**/
-
         //TEST WITH ONLY ONE ORDER
         What3Words w3w = new What3Words(MACHINE, WEBPORT);
         Menus menus = new Menus(MACHINE, WEBPORT);
@@ -110,6 +101,7 @@ public class App
             //Get closest location
 
         }
+         **/
 
     }
 }

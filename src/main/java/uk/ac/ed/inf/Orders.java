@@ -11,6 +11,7 @@ public class Orders{
         String orderNo;
         String customer;
         String deliverTo;
+        ArrayList<String> items;
     }
 
     public Orders (String machine, String port){
