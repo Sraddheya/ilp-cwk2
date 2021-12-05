@@ -124,4 +124,14 @@ public class Menus {
         return locations;
     }
 
+    public ArrayList<LongLat> getAllLocations(){
+        What3Words words = new What3Words(machine, port);
+        ArrayList<LongLat> locations = new ArrayList<>();
+
+        for (ShopDetails shop : shopList){
+            locations.add(words.wToLonLat(shop.location));
+        }
+
+        return locations;
+    }
 }

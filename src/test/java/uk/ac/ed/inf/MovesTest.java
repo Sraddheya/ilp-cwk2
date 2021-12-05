@@ -4,6 +4,7 @@ import com.mapbox.geojson.Polygon;
 
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MovesTest {
     public static void main(String[] args) {
@@ -13,6 +14,8 @@ public class MovesTest {
         ArrayList<Line2D> lines = nfz.getPerimeter(polys);
 
         Moves moves = new Moves();
+        Landmarks landmarks = new Landmarks("localhost","9898");
+        Menus menus = new Menus("localhost","9898");
 
         //false
         Line2D edgeOfPolygon = new Line2D.Double(-3.1916, 55.9437, -3.1909758, 55.9452678);
@@ -24,10 +27,14 @@ public class MovesTest {
         Line2D wontIntersect = new Line2D.Double(-3.1916, 55.9437, -3.1913, 55.9456);
         System.out.println(moves.isIntersect(wontIntersect, lines));
 
-        System.out.println((int) Math.round(199/10.0) * 10);//200
-        System.out.println((int) Math.round(191/10.0) * 10);//190
+        LongLat curr = new LongLat(-3.186874, 55.944494);//AT
 
-        
+        ArrayList<String> items = new ArrayList<>();
+        items.add("Ham and mozzarella Italian roll");
+        menus.getDeliveryCost(items);
 
+        /**for (LongLat l : locations.keySet()){
+            System.out.println(l.longitude);
+        }**/
     }
 }

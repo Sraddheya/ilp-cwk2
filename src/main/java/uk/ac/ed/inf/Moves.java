@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.awt.geom.Line2D;
 
@@ -16,19 +17,40 @@ public class Moves {
         return false;
     }
 
-    /**public HashMap<LongLat, Double> getClosestBuilding(ArrayList<LongLat> buildings, LongLat curr){
-        HashMap<LongLat, Double> unsortedDistances = new HashMap<LongLat, Double>();
-        HashMap<LongLat, Double> sortedDistances = new HashMap<LongLat, Double>();
+    // function to sort hashmap by values
+    public static HashMap<LongLat, Double> sortByValue(HashMap<LongLat, Double> hm)
+    {
+        // Create a list from elements of HashMap
+        List<Map.Entry<LongLat, Double> > list =
+                new LinkedList<Map.Entry<LongLat, Double> >(hm.entrySet());
 
-        for (LongLat b: buildings){
-            double distance = curr.distanceTo(b);
-            unsortedDistances.put(b, distance);
+        // Sort the list
+        Collections.sort(list, new Comparator<Map.Entry<LongLat, Double> >() {
+            public int compare(Map.Entry<LongLat, Double> o1,
+                               Map.Entry<LongLat, Double> o2)
+            {
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+
+        // put data from sorted list to hashmap
+        HashMap<LongLat, Double> temp = new LinkedHashMap<LongLat, Double>();
+        for (Map.Entry<LongLat, Double> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
         }
-        unsortedDistances.entrySet().stream().sorted(Map.Entry.comparingByValue())
-                .forEachOrdered(x -> sortedDistances.put(x.getKey(), x.getValue()));
+        return temp;
+    }
 
-        return sortedDistances;
-    }**/
+    public ArrayList<Double> getLandmarkDistances(ArrayList<LongLat> landmarks, LongLat curr){
+        ArrayList<Double> distances = new ArrayList<>();
+
+        for (LongLat l: landmarks){
+            double distance = curr.distanceTo(l);
+            distances.add(distance);
+        }
+
+        return distances;
+    }
 
     public int getAngle(LongLat currll, LongLat destll){
         double y = destll.latitude - currll.latitude;
@@ -38,7 +60,6 @@ public class Moves {
     }
 
     public LongLat fly(String orderNo, LongLat curr, LongLat dest){
-        //for (int i = 0; i<50; i++){
         while (!curr.closeTo(dest)){
             FlightPath.FlightDetails newMove = new FlightPath.FlightDetails();
             newMove.orderNo = orderNo;
@@ -54,22 +75,4 @@ public class Moves {
         return curr;
     }
 
-    /**public ArrayList<FlightPath.FlightDetails> getMoves(String orderNo, LongLat currll, LongLat destll){
-        ArrayList<FlightPath.FlightDetails> moves = new ArrayList<>();
-
-        while (!currll.closeTo(destll)) {
-            FlightPath.FlightDetails tempMove = new FlightPath.FlightDetails();
-            tempMove.orderNo = orderNo;
-            tempMove.fromLong = currll.longitude;;
-            tempMove.fromLat = currll.longitude;
-
-            double angle = getAngle(currll, destll);
-            tempMove.angle = angle;
-
-            tempMove.toLong;
-            tempMove.toLat;
-        }
-
-        return moves;
-    }**/
 }
