@@ -72,7 +72,6 @@ public class App
         LongLat currll = new LongLat(-3.186874, 55.944494);//AT
 
         //Plan the moves
-        int x = 0;
         while (!deliveryCosts.isEmpty()){
             //Get orderNo of order with max delivery cost
             int indexMaxCost = deliveryCosts.indexOf(Collections.max(deliveryCosts));
@@ -87,6 +86,7 @@ public class App
 
                 //Path is intersecting so we need to travel to a landmark instead
                 if (moves.isIntersect(line, perimeter)){
+                    moves.toLandmark = true;
                     ArrayList<Double> distances = moves.getLandmarkDistances(landmark_coordinates, currll);
 
                     //Iterate over landmarks until we find one that does not have an intersecting flightpath where landmarks are sorted in closeness to the current location
@@ -103,13 +103,17 @@ public class App
                         }
                     }
                 }
-                currll = moves.fly(currOrder.orderNo, currll, tempDest, x);
-                x = x +1;
-                coordinatesToVisit.poll();
+                currll = moves.fly(currOrder.orderNo, currll, tempDest);
+                if (moves.toLandmark){
+                    moves.toLandmark = false;
+                } else {
+                    coordinatesToVisit.remove();
+                }
             }
             deliveryCosts.remove(indexMaxCost);
         }
 
+        System.out.println(moves.movesRemaining);
         //Add moves to flightpath json
         flightPath.addFlightPath(moves.movement, "1234");
 

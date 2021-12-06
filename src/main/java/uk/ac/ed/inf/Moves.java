@@ -6,6 +6,8 @@ import java.awt.geom.Line2D;
 
 
 public class Moves {
+    int movesRemaining = 1500;
+    boolean toLandmark = false;
     ArrayList<FlightPath.FlightDetails> movement = new ArrayList<>();
 
     public boolean isIntersect(Line2D move, ArrayList<Line2D> perimeter){
@@ -59,7 +61,7 @@ public class Moves {
         return (int) Math.round(angle/10.0) * 10;
     }
 
-    public LongLat fly(String orderNo, LongLat curr, LongLat dest, int x){
+    public LongLat fly(String orderNo, LongLat curr, LongLat dest){
         while (!curr.closeTo(dest)){
             FlightPath.FlightDetails newMove = new FlightPath.FlightDetails();
             newMove.orderNo = orderNo;
@@ -69,8 +71,19 @@ public class Moves {
             curr = curr.nextPosition(newMove.angle);
             newMove.toLong = curr.longitude;
             newMove.toLat = curr.latitude;
-            System.out.println("move" + x);
             movement.add(newMove);
+            movesRemaining--;
+        }
+        if (!toLandmark){
+            FlightPath.FlightDetails newMove = new FlightPath.FlightDetails();
+            newMove.orderNo = orderNo;
+            newMove.fromLong = curr.longitude;
+            newMove.fromLat = curr.latitude;
+            newMove.angle = -999;
+            newMove.toLong = curr.longitude;
+            newMove.toLat = curr.latitude;
+            movement.add(newMove);
+            movesRemaining--;
         }
         return curr;
     }

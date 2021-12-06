@@ -40,7 +40,7 @@ public class CreateFlightPathIsIntersect
         ArrayList<Line2D> perimeter = nfz.getPerimeter(polys);
 
         String orderNo = "1234";
-        LongLat curr = new LongLat(-3.186874, 55.944494);//AT
+        LongLat currll = new LongLat(-3.186874, 55.944494);//AT
         LongLat dest = new LongLat(-3.188174, 55.943551);//George square
 
         LinkedList<LongLat> linkedList = new LinkedList<>();
@@ -48,30 +48,48 @@ public class CreateFlightPathIsIntersect
         LongLat temp2 = new LongLat(-3.191257, 55.945626);//greggs
         linkedList.add(temp1);
         linkedList.add(temp2);
+        linkedList.add(dest);
 
-        ArrayList<LongLat> landmarkll = landmarks.getLandmarks();
-        while (!linkedList.isEmpty()){
-            LongLat tempDest = linkedList.peek();
-            Line2D line = new Line2D.Double(curr.longitude, curr.latitude, tempDest.longitude, tempDest.latitude);
+        //Get landmarks for planning moves
+        ArrayList<LongLat> landmark_coordinates = landmarks.getLandmarks();
+
+        //Fly drone until all the shops and the final delivery location have been visited
+        LinkedList<LongLat> coordinatesToVisit = linkedList;
+        System.out.println(linkedList.size());
+        while (!coordinatesToVisit.isEmpty()){
+            LongLat tempDest = coordinatesToVisit.peek();
+            Line2D line = new Line2D.Double(currll.longitude, currll.latitude, tempDest.longitude, tempDest.latitude);
+
+            //Path is intersecting so we need to travel to a landmark instead
             if (moves.isIntersect(line, perimeter)){
-                ArrayList<Double> distances = moves.getLandmarkDistances(landmarkll, curr);
-                while (distances.size()!=0){
-                    int index_min = distances.indexOf(Collections.min(distances));
-                    tempDest = landmarkll.get(index_min);
-                    line = new Line2D.Double(curr.longitude, curr.latitude, tempDest.longitude, tempDest.latitude);
+                moves.toLandmark = true;
+                ArrayList<Double> distances = moves.getLandmarkDistances(landmark_coordinates, currll);
+
+                //Iterate over landmarks until we find one that does not have an intersecting flightpath where landmarks are sorted in closeness to the current location
+                while (!distances.isEmpty()) {
+                    int indexMinll = distances.indexOf(Collections.min(distances));
+                    tempDest = landmark_coordinates.get(indexMinll);
+                    line = new Line2D.Double(currll.longitude, currll.latitude, tempDest.longitude, tempDest.latitude);
                     if (!moves.isIntersect(line, perimeter)) {
+                        //Found suitable landmark
                         break;
                     } else {
-                        landmarkll.remove(index_min);
+                        //Flight to landmark still intersects with polygon
+                        landmark_coordinates.remove(indexMinll);
                     }
                 }
             }
-            //curr = moves.fly(orderNo, curr, tempDest);
-            linkedList.poll();
+            currll = moves.fly(orderNo, currll, tempDest);
+            if (moves.toLandmark){
+                moves.toLandmark = false;
+            } else {
+                coordinatesToVisit.remove();
+            }
 
         }
-        //moves.fly(orderNo, curr, dest);
 
+
+        System.out.println(moves.movesRemaining);
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
         flightPath.addFlightPath(moves.movement, "1234");
 
