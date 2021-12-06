@@ -5,7 +5,7 @@ import java.util.*;
 import java.awt.geom.Line2D;
 
 
-public class Moves {
+public class Moves {/**
     int movesRemaining = 1500;
     boolean toLandmark = false;
     int movesToTempDest = 0;
@@ -106,5 +106,5 @@ public class Moves {
 
         return movesToAppleton;
     }
-
+**/
 }

@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 public class App
 {
-    private static final String MACHINE = "localhost";
+    /**private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
     private static final String TESTDATE = "2023-12-31";
@@ -129,5 +129,5 @@ public class App
         System.out.println(moves.movesRemaining);
         flightPath.addFlightPathToJson(moves.movementsDelivered, "1234");
 
-    }
+    }**/
 }
