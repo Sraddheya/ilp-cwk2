@@ -8,20 +8,12 @@ public class Orders{
     private String machine;
     private String port;
 
-    public static class OrdersInfo{
-        String orderNo;
-        String customer;
-        String deliverTo;
-        ArrayList<String> items;
-        LinkedList<LongLat> shopCoordinates;
-    }
-
     public Orders (String machine, String port){
         this.machine = machine;
         this.port = port;
     }
 
-    public ArrayList<OrdersInfo> getOrders(String ordDate){
+    public ArrayList<OrderInfo> getOrders(String ordDate){
 
         //CONNECTING TO A DATABASE
         Connection conn = null;
@@ -32,7 +24,7 @@ public class Orders{
         }
 
         //CREATE array of orders
-        ArrayList<OrdersInfo> ordersList = new ArrayList<>();
+        ArrayList<OrderInfo> ordersList = new ArrayList<>();
 
         //READ ORDERS OF SPECIFIC DATE
         final String coursesQuery = "select * from orders where deliveryDate=(?)";
@@ -41,7 +33,7 @@ public class Orders{
             psCourseQuery.setString(1, ordDate);
             ResultSet rs = psCourseQuery.executeQuery();
             while (rs.next()) {
-                OrdersInfo order = new OrdersInfo();
+                OrderInfo order = new OrderInfo();
                 order.orderNo = rs.getString("orderNo");
                 order.customer = rs.getString("customer");
                 order.deliverTo = rs.getString("deliverTo");

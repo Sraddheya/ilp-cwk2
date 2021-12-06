@@ -5,7 +5,6 @@ import com.mapbox.geojson.Polygon;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 public class App
@@ -18,9 +17,17 @@ public class App
 
     public static void main( String[] args ) {
 
-        //Create databases
+        //Connect to web servers
+        Menus menus = new Menus(MACHINE, WEBPORT);
+        What3Words w3w = new What3Words(MACHINE, WEBPORT);
+        Landmarks landmarks = new Landmarks(MACHINE, WEBPORT);
+        Moves moves = new Moves();
+
+        //Connect to databases
         Delivery delivery = new Delivery(MACHINE, JDBCPORT);
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
+        Orders orders = new Orders(MACHINE, JDBCPORT);
+        OrderDetails details = new OrderDetails(MACHINE, JDBCPORT);
 
         if (!delivery.createDelivery() || !flightPath.createFlightPath()) {
             //Error message if databases could not be made
@@ -28,23 +35,12 @@ public class App
         }
 
         //Get orders for specific date
-        Orders orders = new Orders(MACHINE, JDBCPORT);
-        ArrayList<Orders.OrdersInfo> ordersList = orders.getOrders(TESTDATE);
+        ArrayList<OrderInfo> ordersToDeliver = orders.getOrders(TESTDATE);
 
-        OrderDetails details = new OrderDetails(MACHINE, JDBCPORT);
-        What3Words w3w = new What3Words(MACHINE, WEBPORT);
-        Menus menus = new Menus(MACHINE, WEBPORT);
-        Landmarks landmarks = new Landmarks(MACHINE, WEBPORT);
-        Moves moves = new Moves();
-
-        //Get perimeter
-        NoFlyZones nfz = new NoFlyZones(MACHINE,WEBPORT);
-        ArrayList<Polygon> polys = nfz.getPolygons();
-        ArrayList<Line2D> perimeter = nfz.getPerimeter(polys);
-
+        //Array to store our delivery costs
         ArrayList<Integer> deliveryCosts = new ArrayList<>();
 
-        for (Orders.OrdersInfo o : ordersList){
+        for (OrderInfo o : ordersToDeliver) {
             //Get items for orderNo
             ArrayList<String> itemsList = details.getItems(o.orderNo);
             o.items = itemsList;
@@ -57,65 +53,82 @@ public class App
             ArrayList<String> coordinates_w3w = menus.getCoordinates(itemsList);
 
             //Turn all shop coordinates from w3w into longlat
-            //LongLat temp= w3w.wToLonLat(o.deliverTo);
             LinkedList<LongLat> coordinates_ll = new LinkedList<>();
-            for (String str : coordinates_w3w){
+            for (String str : coordinates_w3w) {
                 coordinates_ll.add(w3w.wToLonLat(str));
             }
-            o.shopCoordinates = coordinates_ll;
+            o.shopsll = coordinates_ll;
         }
 
-        //Get landmarks for planning moves
-        ArrayList<LongLat> landmark_coordinates = landmarks.getLandmarks();
+        //Get perimeter of no fly zones for planning flightpath
+        NoFlyZones nfz = new NoFlyZones(MACHINE, WEBPORT);
+        ArrayList<Polygon> polys = nfz.getPolygons();
+        ArrayList<Line2D> perimeter = nfz.getPerimeter(polys);
+
+        //Get landmarks for planning flightpath
+        ArrayList<LongLat> allLandmarks = landmarks.getLandmarks();
 
         //Set current location to Appleton Tower at beginning of deliveries;
-        LongLat currll = new LongLat(-3.186874, 55.944494);//AT
+        LongLat currll = new LongLat(-3.186874, 55.944494);
 
-        //Plan the moves
-        while (!deliveryCosts.isEmpty()){
+        //Delivered
+        ArrayList<OrderInfo> ordersDelivered = new ArrayList<>();
+        ArrayList<Integer> costsOfDelivered = new ArrayList<>();
+
+        while (!ordersToDeliver.isEmpty()) {
             //Get orderNo of order with max delivery cost
             int indexMaxCost = deliveryCosts.indexOf(Collections.max(deliveryCosts));
-            Orders.OrdersInfo currOrder = ordersList.get(indexMaxCost);
+            OrderInfo currOrder = ordersToDeliver.get(indexMaxCost);
 
             //Fly drone until all the shops and the final delivery location have been visited
-            LinkedList<LongLat> coordinatesToVisit = currOrder.shopCoordinates;
-            coordinatesToVisit.add(w3w.wToLonLat(currOrder.deliverTo));
-            while (!coordinatesToVisit.isEmpty()){
-                LongLat tempDest = coordinatesToVisit.peek();
-                Line2D line = new Line2D.Double(currll.longitude, currll.latitude, tempDest.longitude, tempDest.latitude);
+            LinkedList<LongLat> llToVisit = currOrder.shopsll;
+            llToVisit.add(w3w.wToLonLat(currOrder.deliverTo));
+
+            LongLat tempCurrll = currll;
+
+            while (!llToVisit.isEmpty()) {
+                LongLat tempDest = llToVisit.peek();
+                Line2D line = new Line2D.Double(tempCurrll.longitude, tempCurrll.latitude, tempDest.longitude, tempDest.latitude);
 
                 //Path is intersecting so we need to travel to a landmark instead
-                if (moves.isIntersect(line, perimeter)){
+                if (moves.isIntersect(line, perimeter)) {
                     moves.toLandmark = true;
-                    ArrayList<Double> distances = moves.getLandmarkDistances(landmark_coordinates, currll);
-
-                    //Iterate over landmarks until we find one that does not have an intersecting flightpath where landmarks are sorted in closeness to the current location
-                    while (!distances.isEmpty()){
-                        int indexMinll = distances.indexOf(Collections.min(distances));
-                        tempDest = landmark_coordinates.get(indexMinll);
-                        line = new Line2D.Double(currll.longitude, currll.latitude, tempDest.longitude, tempDest.latitude);
-                        if (!moves.isIntersect(line, perimeter)) {
-                            //Found suitable landmark
-                            break;
-                        } else {
-                            //Flight to landmark still intersects with polygon
-                            landmark_coordinates.remove(indexMinll);
-                        }
-                    }
-                }
-                currll = moves.fly(currOrder.orderNo, currll, tempDest);
-                if (moves.toLandmark){
-                    moves.toLandmark = false;
+                    tempDest = moves.getIntermediate(tempCurrll);
                 } else {
-                    coordinatesToVisit.remove();
+                    llToVisit.remove();
                 }
+
+                tempCurrll = moves.flyDrone;
+                moves.toLandmark = false;
+
             }
-            deliveryCosts.remove(indexMaxCost);
+
+            //Check if there are enough moves to fly back to Appleton
+            int movesToAppleton = moves.flyToAppleton(currOrder.orderNo, currll);
+            int movesRemainingAfterDelivery = moves.movesRemaining - moves.movesToTempDest;
+            if (movesToAppleton >= movesRemainingAfterDelivery){
+                //Do not make any more deliveries and go back to Appleton
+                deliveryCosts.clear();
+                ordersToDeliver.clear();
+            } else {
+                //Can make the delivery
+                costsOfDelivered.add(deliveryCosts.get(indexMaxCost));
+                deliveryCosts.remove(indexMaxCost);
+                ordersDelivered.add(ordersToDeliver.get(indexMaxCost));
+                ordersToDeliver.remove(indexMaxCost);
+                moves.movement.addAll(moves.tempMovement);
+                moves.movesRemaining = movesRemainingAfterDelivery;
+            }
+            moves.movesToTempDest = 0;
+            moves.tempMovement = new ArrayList<>();
         }
 
+        //Drone flies back to Appleton
+        moves.movement.addAll(moves.atMovement);
+
         System.out.println(moves.movesRemaining);
-        //Add moves to flightpath json
-        flightPath.addFlightPath(moves.movement, "1234");
+        FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
+        flightPath.addFlightPathToJson(moves.movement, "1234");
 
     }
 }

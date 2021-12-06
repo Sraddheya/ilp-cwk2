@@ -5,7 +5,6 @@ import com.mapbox.geojson.Polygon;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Queue;
 
 public class CreateFlightPathNoIntersect
 {
@@ -59,7 +58,7 @@ public class CreateFlightPathNoIntersect
         //moves.fly(orderNo, curr, dest);
 
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
-        flightPath.addFlightPath(moves.movement, "1234");
+        flightPath.addFlightPathToJson(moves.movement, "1234");
 
 
     }

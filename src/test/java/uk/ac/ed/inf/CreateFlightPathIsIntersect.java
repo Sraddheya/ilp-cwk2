@@ -1,6 +1,5 @@
 package uk.ac.ed.inf;
 
-import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 
 import java.awt.geom.Line2D;
@@ -40,7 +39,8 @@ public class CreateFlightPathIsIntersect
         ArrayList<Line2D> perimeter = nfz.getPerimeter(polys);
 
         String orderNo = "1234";
-        LongLat currll = new LongLat(-3.186874, 55.944494);//AT
+        LongLat at = new LongLat(-3.186874, 55.944494);//AT
+        LongLat currll = new LongLat(-3.186103, 55.944656); //nile valley
         LongLat dest = new LongLat(-3.188174, 55.943551);//George square
 
         LinkedList<LongLat> linkedList = new LinkedList<>();
@@ -88,10 +88,24 @@ public class CreateFlightPathIsIntersect
 
         }
 
+        //Check if there are enough moves to fly back to Appleton
+        int movesToAppleton = moves.flyToAppleton(orderNo, currll);
+        int movesAfterOrder = moves.movesRemaining - moves.movesToTempDest;
+        if (movesToAppleton >= movesAfterOrder){
+            //clear orders
+            moves.movement.addAll(moves.atMovement);
+            moves.movesRemaining -= movesToAppleton;
+        } else {
+            moves.movement.addAll(moves.tempMovement);
+            moves.movesRemaining = movesAfterOrder;
+        }
+        moves.movesToTempDest = 0;
+        moves.tempMovement = new ArrayList<>();
+
 
         System.out.println(moves.movesRemaining);
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
-        flightPath.addFlightPath(moves.movement, "1234");
+        flightPath.addFlightPathToJson(moves.movement, "1234");
 
 
 

@@ -59,28 +59,7 @@ public class FlightPath
         }
     }
 
-    public void addFlightPath(ArrayList<FlightPath.FlightDetails> flightDetails, String ordDate){
-
-        /**
-        try {
-            //CONNECTING TO A DATABASE
-            Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
-
-            PreparedStatement psFlight = conn.prepareStatement("insert into flightpath values (?, ?, ?, ?, ?, ?)");
-            for (FlightPath.FlightDetails f : flightDetails) {
-                psFlight.setString(1, f.orderNo);
-                psFlight.setDouble(2, f.fromLong);
-                psFlight.setDouble(3, f.fromLat);
-                psFlight.setInt(4, f.angle);
-                psFlight.setDouble(5, f.toLong);
-                psFlight.setDouble(6, f.toLat);
-                psFlight.execute();
-            }
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }**/
-
+    public void addFlightPathToJson(ArrayList<FlightPath.FlightDetails> flightDetails, String ordDate){
         ArrayList<Feature> fList = new ArrayList<>();
         for (FlightPath.FlightDetails f : flightDetails) {
             ArrayList<Point> points = new ArrayList<>();
@@ -105,8 +84,28 @@ public class FlightPath
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public void addFlightPathToDB(ArrayList<FlightPath.FlightDetails> flightDetails, String ordDate){
+        /**
+         try {
+         //CONNECTING TO A DATABASE
+         Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
 
+         PreparedStatement psFlight = conn.prepareStatement("insert into flightpath values (?, ?, ?, ?, ?, ?)");
+         for (FlightPath.FlightDetails f : flightDetails) {
+         psFlight.setString(1, f.orderNo);
+         psFlight.setDouble(2, f.fromLong);
+         psFlight.setDouble(3, f.fromLat);
+         psFlight.setInt(4, f.angle);
+         psFlight.setDouble(5, f.toLong);
+         psFlight.setDouble(6, f.toLat);
+         psFlight.execute();
+         }
+
+         } catch (SQLException throwables) {
+         throwables.printStackTrace();
+         }**/
     }
 
 }

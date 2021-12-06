@@ -17,7 +17,6 @@ public class Delivery
 
     public boolean createDelivery(){
         try {
-
             //CONNECTING TO A DATABASE
             Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
 
