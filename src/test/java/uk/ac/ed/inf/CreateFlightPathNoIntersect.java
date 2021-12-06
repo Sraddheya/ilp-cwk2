@@ -58,7 +58,7 @@ public class CreateFlightPathNoIntersect
         //moves.fly(orderNo, curr, dest);
 
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
-        flightPath.addFlightPathToJson(moves.movement, "1234");
+        flightPath.addFlightPathToJson(moves.movementsDelivered, "1234");
 
 
     }

@@ -79,7 +79,7 @@ public class CreateFlightPathIsIntersect
                     }
                 }
             }
-            currll = moves.fly(orderNo, currll, tempDest);
+            //currll = moves.fly(orderNo, currll, tempDest);
             if (moves.toLandmark){
                 moves.toLandmark = false;
             } else {
@@ -93,10 +93,10 @@ public class CreateFlightPathIsIntersect
         int movesAfterOrder = moves.movesRemaining - moves.movesToTempDest;
         if (movesToAppleton >= movesAfterOrder){
             //clear orders
-            moves.movement.addAll(moves.atMovement);
+            moves.movementsDelivered.addAll(moves.atMovement);
             moves.movesRemaining -= movesToAppleton;
         } else {
-            moves.movement.addAll(moves.tempMovement);
+            moves.movementsDelivered.addAll(moves.tempMovement);
             moves.movesRemaining = movesAfterOrder;
         }
         moves.movesToTempDest = 0;
@@ -105,7 +105,7 @@ public class CreateFlightPathIsIntersect
 
         System.out.println(moves.movesRemaining);
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
-        flightPath.addFlightPathToJson(moves.movement, "1234");
+        flightPath.addFlightPathToJson(moves.movementsDelivered, "1234");
 
 
 

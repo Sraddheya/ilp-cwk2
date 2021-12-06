@@ -6,12 +6,12 @@ import java.awt.geom.Line2D;
 
 
 public class Moves {
-    int movesRemaining = 15;
+    int movesRemaining = 1500;
     boolean toLandmark = false;
     int movesToTempDest = 0;
     ArrayList<FlightPath.FlightDetails> tempMovement = new ArrayList<>();
     ArrayList<FlightPath.FlightDetails> atMovement = new ArrayList<>();
-    ArrayList<FlightPath.FlightDetails> movement = new ArrayList<>();
+    ArrayList<FlightPath.FlightDetails> movementsDelivered = new ArrayList<>();
 
     public boolean isIntersect(Line2D move, ArrayList<Line2D> perimeter){
         for (Line2D line : perimeter){
@@ -22,28 +22,11 @@ public class Moves {
         return false;
     }
 
-    // function to sort hashmap by values
-    public static HashMap<LongLat, Double> sortByValue(HashMap<LongLat, Double> hm)
-    {
-        // Create a list from elements of HashMap
-        List<Map.Entry<LongLat, Double> > list =
-                new LinkedList<Map.Entry<LongLat, Double> >(hm.entrySet());
-
-        // Sort the list
-        Collections.sort(list, new Comparator<Map.Entry<LongLat, Double> >() {
-            public int compare(Map.Entry<LongLat, Double> o1,
-                               Map.Entry<LongLat, Double> o2)
-            {
-                return (o1.getValue()).compareTo(o2.getValue());
-            }
-        });
-
-        // put data from sorted list to hashmap
-        HashMap<LongLat, Double> temp = new LinkedHashMap<LongLat, Double>();
-        for (Map.Entry<LongLat, Double> aa : list) {
-            temp.put(aa.getKey(), aa.getValue());
-        }
-        return temp;
+    public int getAngle(LongLat currll, LongLat destll){
+        double y = destll.latitude - currll.latitude;
+        double x = destll.longitude - currll.longitude;
+        double angle = Math.toDegrees(Math.atan2(y, x));
+        return (int) Math.round(angle/10.0) * 10;
     }
 
     public ArrayList<Double> getLandmarkDistances(ArrayList<LongLat> landmarks, LongLat curr){
@@ -57,14 +40,27 @@ public class Moves {
         return distances;
     }
 
-    public int getAngle(LongLat currll, LongLat destll){
-        double y = destll.latitude - currll.latitude;
-        double x = destll.longitude - currll.longitude;
-        double angle = Math.toDegrees(Math.atan2(y, x));
-        return (int) Math.round(angle/10.0) * 10;
+    public LongLat getIntermediate(LongLat currll, ArrayList<LongLat> landmarksll, ArrayList<Line2D> perimeter){
+        ArrayList<LongLat> tempLandmarks = landmarksll;
+        ArrayList<Double> distances = getLandmarkDistances(landmarksll, currll);
+
+        while (!tempLandmarks.isEmpty()) {
+            int indexMinDistance = distances.indexOf(Collections.min(distances));
+            LongLat closestLandmark = tempLandmarks.get(indexMinDistance);
+
+            Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestLandmark.longitude, closestLandmark.latitude);
+
+            if (isIntersect(line, perimeter)) {
+                distances.remove(indexMinDistance);
+                tempLandmarks.remove(indexMinDistance);
+            } else {
+                return closestLandmark;
+            }
+        }
+        return null;
     }
 
-    public LongLat fly(String orderNo, LongLat curr, LongLat dest){
+    public LongLat flyToDelivery(String orderNo, LongLat curr, LongLat dest){
         while (!curr.closeTo(dest)){
             FlightPath.FlightDetails newMove = new FlightPath.FlightDetails();
             newMove.orderNo = orderNo;
