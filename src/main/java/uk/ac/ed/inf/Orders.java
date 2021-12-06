@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Orders{
     private String machine;
@@ -12,6 +13,7 @@ public class Orders{
         String customer;
         String deliverTo;
         ArrayList<String> items;
+        LinkedList<LongLat> shopCoordinates;
     }
 
     public Orders (String machine, String port){

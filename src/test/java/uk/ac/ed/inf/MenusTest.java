@@ -18,7 +18,7 @@ public class MenusTest {
         System.out.println(cost);
 
         //looks.cloud.daring
-        ArrayList<String> locations = menus.getLocations(items);
+        ArrayList<String> locations = menus.getCoordinates(items);
         for (String l : locations){
             System.out.println(l);
         }

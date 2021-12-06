@@ -52,11 +52,11 @@ public class CreateFlightPathNoIntersect
             if (moves.isIntersect(line, perimeter)){
                 System.out.println("IS intersect");
             } else {
-                curr = moves.fly(orderNo, curr, tempDest);
+                //curr = moves.fly(orderNo, curr, tempDest);
                 linkedList.poll();
             }
         }
-        moves.fly(orderNo, curr, dest);
+        //moves.fly(orderNo, curr, dest);
 
         FlightPath flightPath = new FlightPath(MACHINE, JDBCPORT);
         flightPath.addFlightPath(moves.movement, "1234");

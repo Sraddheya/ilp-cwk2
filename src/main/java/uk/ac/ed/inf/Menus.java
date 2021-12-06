@@ -107,7 +107,7 @@ public class Menus {
         return total;
     }
 
-    public ArrayList<String> getLocations (ArrayList<String> items){
+    public ArrayList<String> getCoordinates(ArrayList<String> items){
         ArrayList<String> locations = new ArrayList<>();
 
         for (String i : items) {

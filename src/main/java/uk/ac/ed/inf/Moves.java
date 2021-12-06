@@ -59,7 +59,7 @@ public class Moves {
         return (int) Math.round(angle/10.0) * 10;
     }
 
-    public LongLat fly(String orderNo, LongLat curr, LongLat dest){
+    public LongLat fly(String orderNo, LongLat curr, LongLat dest, int x){
         while (!curr.closeTo(dest)){
             FlightPath.FlightDetails newMove = new FlightPath.FlightDetails();
             newMove.orderNo = orderNo;
@@ -69,7 +69,7 @@ public class Moves {
             curr = curr.nextPosition(newMove.angle);
             newMove.toLong = curr.longitude;
             newMove.toLat = curr.latitude;
-            System.out.println("move");
+            System.out.println("move" + x);
             movement.add(newMove);
         }
         return curr;
