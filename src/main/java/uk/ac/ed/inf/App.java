@@ -9,12 +9,26 @@ import java.util.LinkedList;
 
 public class App
 {
-    /**private static final String MACHINE = "localhost";
+    private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
     private static final String TESTDATE = "2023-12-31";
 
+    public static void main(String[] args) {
+        //Connect to web server
+        WebRequests webRequests = new WebRequests(MACHINE, WEBPORT);
 
+        //Connect to databases
+
+        //Get orders
+
+        //Get movements for each order
+
+        //Write orders to databases
+    }
+
+
+     /**
     public static void main( String[] args ) {
 
         //Connect to web servers
