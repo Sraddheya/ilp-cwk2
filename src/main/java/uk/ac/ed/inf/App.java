@@ -4,6 +4,7 @@ import com.mapbox.geojson.Polygon;
 
 import java.awt.geom.Line2D;
 import java.lang.reflect.Array;
+import java.sql.SQLException;
 import java.util.*;
 
 public class App
@@ -13,13 +14,15 @@ public class App
     private static final String JDBCPORT = "9876";
     private static final String TESTDATE = "2023-12-31";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         //Connect to web server
         WebRequests webRequests = new WebRequests(MACHINE, WEBPORT);
         webRequests.parseMenu();
 
         //Connect to databases
         Databases databases = new Databases(MACHINE, JDBCPORT);
+        databases.createDelivery();
+        databases.createFlightPath();
 
         Orders orders = new Orders();
 
@@ -32,6 +35,9 @@ public class App
         //Get OrderNos of sortedOrderNo
         ArrayList<String> toDeliver = new ArrayList<>();
         toDeliver.addAll(sortedOrdersNo.keySet());
+
+        //Store OrderNos of delivered orders
+        ArrayList<String> delivered = new ArrayList<>();
 
         //Set current location to Appleton Tower at beginning of deliveries;
         LongLat curr= new LongLat(-3.186874, 55.944494);
@@ -59,14 +65,13 @@ public class App
 
             if (movesRemainingAfterDelivery <= drone.movesToAppleton){
                 //Fly back to Appleton
-                //drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
-                //drone.deliveredMovement.addAll(drone.appletonMovement);
                 toDeliver.clear();
             } else {
                 //Make delivery
                 curr = tempCurr;
                 drone.remainingMoves = movesRemainingAfterDelivery;
                 drone.deliveredMovement.addAll(drone.tempMovement);
+                delivered.add(toDeliver.get(toDeliver.size()-1));
                 toDeliver.remove(toDeliver.size() - 1);
                 drone.tempMovement = new ArrayList<>();
                 drone.movesToTempDest = 0;
@@ -79,8 +84,16 @@ public class App
         drone.deliveredMovement.addAll(drone.appletonMovement);
 
         Databases.addFlightPathToJson(drone.deliveredMovement, "1234");
+        Databases.addFlightPathToDB(drone.deliveredMovement);
 
-        //Write orders to databases
+        ArrayList<Orders.OrderInfo> deliveredInfo = new ArrayList<>();
+        ArrayList<Integer> costs = new ArrayList<>();
+
+        for (String o : delivered){
+            deliveredInfo.add(allOrders.get(o));
+            costs.add(sortedOrdersNo.get(o));
+        }
+        Databases.addDeliveriesToDB(deliveredInfo, costs);
     }
 
 

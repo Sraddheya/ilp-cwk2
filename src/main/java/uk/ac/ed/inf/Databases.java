@@ -9,8 +9,8 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Databases {
-    private String machine;
-    private String port;
+    private static String machine;
+    private static String port;
 
     /**
      * Class to help deserialise the JSON record
@@ -52,6 +52,26 @@ public class Databases {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
 
+        }
+    }
+
+    public static void addDeliveriesToDB(ArrayList<Orders.OrderInfo> orders, ArrayList<Integer> costs) throws SQLException {
+        //CONNECTING TO A DATABASE
+        Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
+
+        // Create a statement object that we can use for running various SQL statement commands against the database
+        Statement statement = conn.createStatement();
+
+        for (int i = 0; i<orders.size(); i++) {
+            try {
+                PreparedStatement stmt = conn.prepareStatement("insert into deliveries values (?,?,?)");
+                stmt.setString(1, orders.get(i).orderNo);
+                stmt.setString(2, orders.get(i).deliverTo);
+                stmt.setInt(3, costs.get(i));
+                stmt.execute();
+            } catch (Exception e) {
+                System.exit(1);
+            }
         }
     }
 
@@ -106,26 +126,28 @@ public class Databases {
         }
     }
 
-    public void addFlightPathToDB(ArrayList<FlightDetails> flightDetails, String ordDate){
-        /**
-         try {
-         //CONNECTING TO A DATABASE
-         Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
+    public static void addFlightPathToDB(ArrayList<FlightDetails> movements) throws SQLException {
+        //CONNECTING TO A DATABASE
+        Connection conn = DriverManager.getConnection("jdbc:derby://" + machine + ":" + port + "/derbyDB");
 
-         PreparedStatement psFlight = conn.prepareStatement("insert into flightpath values (?, ?, ?, ?, ?, ?)");
-         for (FlightPath.FlightDetails f : flightDetails) {
-         psFlight.setString(1, f.orderNo);
-         psFlight.setDouble(2, f.fromLong);
-         psFlight.setDouble(3, f.fromLat);
-         psFlight.setInt(4, f.angle);
-         psFlight.setDouble(5, f.toLong);
-         psFlight.setDouble(6, f.toLat);
-         psFlight.execute();
-         }
+        // Create a statement object that we can use for running various SQL statement commands against the database
+        Statement statement = conn.createStatement();
 
-         } catch (SQLException throwables) {
-         throwables.printStackTrace();
-         }**/
+        for (FlightDetails fd: movements){
+            try{
+                PreparedStatement stmt = conn.prepareStatement("insert into flightpath values (?,?,?,?,?,?)");
+                stmt.setString(1,fd.orderNo);
+                stmt.setDouble(2, fd.fromLong);
+                stmt.setDouble(3, fd.fromLat);
+                stmt.setInt(4,fd.angle);
+                stmt.setDouble(5,fd.toLong);
+                stmt.setDouble(6,fd.toLat);
+                stmt.execute();
+            } catch (Exception e) {
+                System.exit(1);
+            }
+        }
+
     }
 
     public ArrayList<Orders.OrderInfo> getOrders(String ordDate){
