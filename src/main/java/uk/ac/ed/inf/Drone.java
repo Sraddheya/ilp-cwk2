@@ -86,7 +86,7 @@ public class Drone {
             moves.add(newMove);
             numMoves++;
         }
-        if (!toLandmark || !toAppleton){
+        if (!toLandmark && !toAppleton){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
             newMove.orderNo = orderNo;
             newMove.fromLong = curr.longitude;
@@ -118,10 +118,10 @@ public class Drone {
             //Path is intersecting so we need to travel to a landmark instead
             if (isIntersect(line, noFlyZones)) {
                 tempDest = getIntermediate(tempCurr);
-                tempCurr = getMoves(orderNo, tempCurr, tempDest, true, false);
+                tempCurr = getMoves(orderNo, tempCurr, tempDest, true, toAppleton);
             } else {
                 shops.remove(0);
-                tempCurr = getMoves(orderNo, tempCurr, tempDest, false, false);
+                tempCurr = getMoves(orderNo, tempCurr, tempDest, false, toAppleton);
             }
 
         }

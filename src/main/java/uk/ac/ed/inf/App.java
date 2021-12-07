@@ -40,7 +40,6 @@ public class App
         //Create drone
         Drone drone = new Drone(webRequests.getNoFlyZone(), webRequests.getLandmarkCoordinates());
 
-
         while(!toDeliver.isEmpty()){
 
             Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(toDeliver.size() - 1));
@@ -50,15 +49,35 @@ public class App
 
             //Flying from curr to final destination after picking up items
             LongLat tempCurr = Drone.fly(currentOrder.orderNo, curr, shops, false);
-            curr = tempCurr;
+
+            //Flying back to Appleton
+            shops.clear();
+            shops.add(at);
+            Drone.fly(currentOrder.orderNo, curr, shops, true);
+
             int movesRemainingAfterDelivery = drone.remainingMoves - drone.movesToTempDest;
-            drone.remainingMoves = movesRemainingAfterDelivery;
-            drone.deliveredMovement.addAll(drone.tempMovement);
-            toDeliver.remove(toDeliver.size() - 1);
-            drone.tempMovement = new ArrayList<>();
-            drone.movesToTempDest = 0;
+
+            if (movesRemainingAfterDelivery <= drone.movesToAppleton){
+                //Fly back to Appleton
+                //drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
+                //drone.deliveredMovement.addAll(drone.appletonMovement);
+                toDeliver.clear();
+            } else {
+                //Make delivery
+                curr = tempCurr;
+                drone.remainingMoves = movesRemainingAfterDelivery;
+                drone.deliveredMovement.addAll(drone.tempMovement);
+                toDeliver.remove(toDeliver.size() - 1);
+                drone.tempMovement = new ArrayList<>();
+                drone.movesToTempDest = 0;
+            }
 
         }
+
+        //Fly back to Appleton
+        drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
+        drone.deliveredMovement.addAll(drone.appletonMovement);
+
         Databases.addFlightPathToJson(drone.deliveredMovement, "1234");
 
         //Write orders to databases
