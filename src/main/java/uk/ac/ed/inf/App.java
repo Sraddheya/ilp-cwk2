@@ -37,37 +37,29 @@ public class App
         LongLat curr= new LongLat(-3.186874, 55.944494);
         LongLat at = new LongLat(-3.186874, 55.944494);
 
-        int i = 0;
-        while(i<1){
-            i++;
-            Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(toDeliver.size()-1));
+        //Create drone
+        Drone drone = new Drone(webRequests.getNoFlyZone(), webRequests.getLandmarkCoordinates());
+
+
+        while(!toDeliver.isEmpty()){
+
+            Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(toDeliver.size() - 1));
             ArrayList<LongLat> shops = Orders.sortByShopDistance(webRequests, databases, curr, currentOrder.shops);
             LongLat dest = webRequests.w3wToLongLat(currentOrder.deliverTo);
+            shops.add(dest);
 
             //Flying from curr to final destination after picking up items
-            LongLat tempCurr = Drone.fly(currentOrder.orderNo, curr, dest, shops, false);
-
+            LongLat tempCurr = Drone.fly(currentOrder.orderNo, curr, shops, false);
             curr = tempCurr;
-            //Flying to Appleton
-            //Drone.fly(currentOrder.orderNo, curr, at, shops, true);
-
-            /**
-            //Check if there are enough moves to fly back to Appleton
-            int movesRemainingAfterDelivery = Drone.movesRemaining - Drone.movesToTempDest;
-            if (Drone.movesToAppleton >= movesRemainingAfterDelivery){
-                //Do not make any more deliveries and go back to Appleton
-            } else {
-                //Can make the delivery
-                toDeliver.remove(toDeliver.size()-1);
-                Drone.movementsDelivered.addAll(Drone.tempMovement);
-                Drone.movesRemaining = movesRemainingAfterDelivery;
-            }
-            Drone.movesToTempDest = 0;
-            Drone.tempMovement = new ArrayList<>();
-             **/
+            int movesRemainingAfterDelivery = drone.remainingMoves - drone.movesToTempDest;
+            drone.remainingMoves = movesRemainingAfterDelivery;
+            drone.deliveredMovement.addAll(drone.tempMovement);
+            toDeliver.remove(toDeliver.size() - 1);
+            drone.tempMovement = new ArrayList<>();
+            drone.movesToTempDest = 0;
 
         }
-        Databases.addFlightPathToJson(Drone.movementsDelivered, "1234");
+        Databases.addFlightPathToJson(drone.deliveredMovement, "1234");
 
         //Write orders to databases
     }
