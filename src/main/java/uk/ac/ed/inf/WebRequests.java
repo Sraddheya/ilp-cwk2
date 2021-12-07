@@ -22,7 +22,7 @@ public class WebRequests {
     private String port;
     public ArrayList<ShopDetails1> shopList = new ArrayList<>();
     public Map<String, Integer> itemCostMap = new HashMap<>();
-    public Map<String, LongLat> itemShopMap = new HashMap<>();
+    public Map<String, String> itemShopMap = new HashMap<>();
 
     /**
      * Immutable single client to be used for all requests
@@ -129,7 +129,7 @@ public class WebRequests {
     public void makeItemsShop(){
         for (ShopDetails1 sd : this.shopList){
             for (ShopDetails1.Menu m : sd.menu){
-                itemShopMap.put(m.item, w3wToLongLat(sd.location));
+                itemShopMap.put(m.item, sd.location);
             }
         }
     }
@@ -145,11 +145,14 @@ public class WebRequests {
         return total;
     }
 
-    public ArrayList<LongLat> getDeliveryCoordinates(ArrayList<String> args){
-        ArrayList<LongLat> coordinates = new ArrayList<>();
+    public ArrayList<String> getDeliveryCoordinates(ArrayList<String> args){
+        ArrayList<String> coordinates = new ArrayList<>();
 
         for (String a : args){
-            coordinates.add(itemShopMap.get(a));
+            String shop = itemShopMap.get(a);
+            if (!coordinates.contains(shop)) {
+                coordinates.add(shop);
+            }
         }
 
         return coordinates;

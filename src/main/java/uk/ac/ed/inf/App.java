@@ -3,9 +3,8 @@ package uk.ac.ed.inf;
 import com.mapbox.geojson.Polygon;
 
 import java.awt.geom.Line2D;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class App
 {
@@ -17,12 +16,58 @@ public class App
     public static void main(String[] args) {
         //Connect to web server
         WebRequests webRequests = new WebRequests(MACHINE, WEBPORT);
+        webRequests.parseMenu();
 
         //Connect to databases
+        Databases databases = new Databases(MACHINE, JDBCPORT);
+
+        Orders orders = new Orders();
 
         //Get orders
+        Map<String, Orders.OrderInfo> allOrders = orders.getOrdersInfo(webRequests, databases, TESTDATE);
 
-        //Get movements for each order
+        //Sort orders by delivery cost
+        HashMap<String, Integer> sortedOrdersNo = orders.sortByDeliveryCost(webRequests, databases, allOrders.values());
+
+        //Get OrderNos of sortedOrderNo
+        ArrayList<String> toDeliver = new ArrayList<>();
+        toDeliver.addAll(sortedOrdersNo.keySet());
+
+        //Set current location to Appleton Tower at beginning of deliveries;
+        LongLat curr= new LongLat(-3.186874, 55.944494);
+        LongLat at = new LongLat(-3.186874, 55.944494);
+
+        int i = 0;
+        while(i<1){
+            i++;
+            Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(toDeliver.size()-1));
+            ArrayList<LongLat> shops = Orders.sortByShopDistance(webRequests, databases, curr, currentOrder.shops);
+            LongLat dest = webRequests.w3wToLongLat(currentOrder.deliverTo);
+
+            //Flying from curr to final destination after picking up items
+            LongLat tempCurr = Drone.fly(currentOrder.orderNo, curr, dest, shops, false);
+
+            curr = tempCurr;
+            //Flying to Appleton
+            //Drone.fly(currentOrder.orderNo, curr, at, shops, true);
+
+            /**
+            //Check if there are enough moves to fly back to Appleton
+            int movesRemainingAfterDelivery = Drone.movesRemaining - Drone.movesToTempDest;
+            if (Drone.movesToAppleton >= movesRemainingAfterDelivery){
+                //Do not make any more deliveries and go back to Appleton
+            } else {
+                //Can make the delivery
+                toDeliver.remove(toDeliver.size()-1);
+                Drone.movementsDelivered.addAll(Drone.tempMovement);
+                Drone.movesRemaining = movesRemainingAfterDelivery;
+            }
+            Drone.movesToTempDest = 0;
+            Drone.tempMovement = new ArrayList<>();
+             **/
+
+        }
+        Databases.addFlightPathToJson(Drone.movementsDelivered, "1234");
 
         //Write orders to databases
     }

@@ -79,7 +79,7 @@ public class Databases {
         }
     }
 
-    public void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String ordDate){
+    public static void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String ordDate){
         ArrayList<Feature> fList = new ArrayList<>();
         for (FlightDetails f : flightDetails) {
             ArrayList<Point> points = new ArrayList<>();

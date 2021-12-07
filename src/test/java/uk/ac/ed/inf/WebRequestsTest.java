@@ -25,14 +25,17 @@ public class WebRequestsTest {
         items.add("Strawberry matcha latte");
         items.add("Fresh taro latte");
         System.out.println((4 * 460 + 50) == webRequests.getDeliveryCost(items));
-        ArrayList<LongLat> deliveryCoordinates = webRequests.getDeliveryCoordinates(items);
-        LongLat delCord1 = new LongLat(-3.185332, 55.944656);//Bing tea
-        System.out.println((delCord1.longitude == deliveryCoordinates.get(0).longitude) && (delCord1.latitude == deliveryCoordinates.get(0).latitude));
+        ArrayList<String> deliveryCoordinates = webRequests.getDeliveryCoordinates(items);
+        //LongLat delCord1 = new LongLat(-3.185332, 55.944656);//Bing tea
+        //System.out.println((delCord1.longitude == deliveryCoordinates.get(0).longitude) && (delCord1.latitude == deliveryCoordinates.get(0).latitude));
+        System.out.println(deliveryCoordinates.get(0).equals("looks.clouds.daring"));
+        System.out.println(deliveryCoordinates.size()==1);
 
         //Test getShopCoordinates
         LongLat shop = new LongLat(-3.191065, 55.945626);//Rudis
         ArrayList<LongLat> shopCoordinates = webRequests.getShopCoordinates();
         System.out.println((shop.longitude == shopCoordinates.get(0).longitude) && (shop.latitude == shopCoordinates.get(0).latitude));
+
 
         //Test getLandmarkCoordinates
         LongLat landmark = new LongLat(-3.191594, 55.943658);//Soderberg
