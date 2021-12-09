@@ -18,19 +18,34 @@ import java.util.List;
 import java.util.Map;
 
 public class WebRequests {
+    /**
+     * The machine where the web server is running.
+     */
     private String machine;
+    /**
+     * The port where the web server is running.
+     */
     private String port;
-    public ArrayList<ShopDetails1> shopList = new ArrayList<>();
-    public Map<String, Integer> itemCostMap = new HashMap<>();
-    public Map<String, String> itemShopMap = new HashMap<>();
 
     /**
-     * Immutable single client to be used for all requests
+     * The shops from which order are allowed to be placed.
+     */
+    public ArrayList<ShopDetails1> shopList = new ArrayList<>();
+    /**
+     * Map of each item and their corresponding cost.
+     */
+    public Map<String, Integer> itemCostMap = new HashMap<>();
+    /**
+     * Map of each item and their corresponding shop.
+     */
+    public Map<String, String> itemShopMap = new HashMap<>();
+    /**
+     * Immutable single client to be used for all requests.
      */
     private static final HttpClient client = HttpClient.newHttpClient();
 
     /**
-     * Class to help deserialise the JSON record
+     * Class to help deserialise the JSON record from Menu.
      */
     public class ShopDetails1{
         String name;
@@ -43,6 +58,9 @@ public class WebRequests {
         }
     }
 
+    /**
+     * Class to help deserialise the JSON record from each What3words file.
+     */
     public static class WordDetails{
         ll coordinates;
 
@@ -56,18 +74,23 @@ public class WebRequests {
      * Constructor method
      *
      * @param machine machine to be used in HTTP requests
-     * @param port port to be use din HTTP requests
-     * @return cost of delivery
-     * @throws ConnectException a connect error occurred because the webserver is
-     *         not running or not running on the correct port
-     * @throws IOException an Input/Output error occurred
-     * @throws InterruptedException an interrupt error occurred
+     * @param port port to be used in HTTP requests
      */
     public WebRequests (String machine, String port){
         this.machine = machine;
         this.port = port;
     }
 
+    /**
+     * Converts what3words string to LongLat object.
+     *
+     * @param w3w string to be converted
+     * @return Longlat object
+     * @throws ConnectException a connect error occurred because the webserver is
+     * not running or not running on the correct port
+     * @throws IOException an Input/Output error occurred
+     * @throws InterruptedException an interrupt error occurred
+     */
     public LongLat w3wToLongLat(String w3w){
         String[] words = w3w.split("\\.");
 
@@ -93,6 +116,15 @@ public class WebRequests {
         return new LongLat(c.coordinates.lng, c.coordinates.lat);
     }
 
+    /**
+     * Gets the information about each menu for each shop. Also calls the methods to get the maps
+     * of the items and their cost and the items and their shop.
+     *
+     * @throws ConnectException a connect error occurred because the webserver is not running or
+     * not running on the correct port
+     * @throws IOException an Input/Output error occurred
+     * @throws InterruptedException an interrupt error occurred
+     */
     public void parseMenu (){
 
         //Perform request (HttpRequest assumes that it is a GET request by default)
@@ -115,9 +147,13 @@ public class WebRequests {
         this.shopList = new Gson().fromJson(response.body(), listType);
 
         setItemCost();
-        msetItemsShop();
+        setItemsShop();
     }
 
+    /**
+     * Reformat the details of the menu into a map with the item name as the key and the item
+     * cost as the value.
+     */
     public void setItemCost(){
         for (ShopDetails1 sd : this.shopList){
             for (ShopDetails1.Menu m : sd.menu){
@@ -126,7 +162,11 @@ public class WebRequests {
         }
     }
 
-    public void msetItemsShop(){
+    /**
+     * Reformat the details of the menu into a map with the item name as the key and the coordinates
+     * of the shop the item comes from as the value.
+     */
+    public void setItemsShop(){
         for (ShopDetails1 sd : this.shopList){
             for (ShopDetails1.Menu m : sd.menu){
                 itemShopMap.put(m.item, sd.location);
@@ -134,6 +174,13 @@ public class WebRequests {
         }
     }
 
+    /**
+     * Calculates the total cost of having the given items delivered (including
+     * the standard delivery charge of 50p).
+     *
+     * @param args items to be delivered
+     * @return cost of delivery
+     */
     public int getDeliveryCost(ArrayList<String> args){
         //Standard delivery charge
         int total = 50;
@@ -145,6 +192,13 @@ public class WebRequests {
         return total;
     }
 
+    /**
+     * Gets what3word coordinates of the shops the specified item needs to be picked up from. The
+     * Each shop is only added once so that that all the items from that shop are picked up in one go.
+     *
+     * @param args items to be delivered
+     * @return what3word coordinates of location of shop item needs to be picked up from
+     */
     public ArrayList<String> getDeliveryCoordinates(ArrayList<String> args){
         ArrayList<String> coordinates = new ArrayList<>();
 
@@ -158,6 +212,11 @@ public class WebRequests {
         return coordinates;
     }
 
+    /**
+     * Gets LongLat coordinates of the all the shops each order is allowed to order from.
+     *
+     * @return LongLat coordinates of location of shops
+     */
     public ArrayList<LongLat> getShopCoordinates(){
         ArrayList<LongLat> coordinates = new ArrayList<>();
 
@@ -168,6 +227,11 @@ public class WebRequests {
         return coordinates;
     }
 
+    /**
+     * Gets LongLat coordinates of the all the landmarks.
+     *
+     * @return LongLat coordinates of landmarks
+     */
     public ArrayList<LongLat> getLandmarkCoordinates(){
         //Perform request (HttpRequest assumes that it is a GET request by default)
         String urlString = "http://" + machine + ":" + port + "/buildings/landmarks.geojson";
@@ -200,6 +264,15 @@ public class WebRequests {
         return coordinates;
     }
 
+    /**
+     * Gets the no-fly zone as a list of Line2D objects.
+     *
+     * @return no-fly zone
+     * @throws ConnectException a connect error occurred because the webserver is not running or
+     * not running on the correct port
+     * @throws IOException an Input/Output error occurred
+     * @throws InterruptedException an interrupt error occurred
+     */
     public ArrayList<Line2D> getNoFlyZone(){
 
         //Perform request (HttpRequest assumes that it is a GET request by default)
@@ -228,6 +301,7 @@ public class WebRequests {
             polygons.add(p);
         }
 
+        //Getting lines that make up the polygon
         ArrayList<Line2D> lines = new ArrayList<>();
 
         for (Polygon p : polygons){

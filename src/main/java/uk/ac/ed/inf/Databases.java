@@ -23,7 +23,7 @@ public class Databases {
     private Connection conn;
 
     /**
-     * Class to help deserialise the JSON record
+     * Class to store flight path details.
      */
     public static class FlightDetails{
         String orderNo;
@@ -36,6 +36,9 @@ public class Databases {
 
     /**
      * Constructor method
+     *
+     * @param machine machine to be used.
+     * @param port port to be used.
      */
     public Databases(String machine, String port){
         this.machine = machine;
