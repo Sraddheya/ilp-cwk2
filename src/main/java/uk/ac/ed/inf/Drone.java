@@ -12,10 +12,12 @@ public class Drone {
     static ArrayList<Databases.FlightDetails> tempMovement = new ArrayList<>();
     static ArrayList<Line2D> noFlyZones = new ArrayList<>();
     static ArrayList<LongLat> landmarkCoordinates = new ArrayList<>();
+    static ArrayList<LongLat> shopCoordinates = new ArrayList<>();
 
-    public Drone(ArrayList<Line2D> noFlyZones, ArrayList<LongLat> landmarkCoordinates){
+    public Drone(ArrayList<Line2D> noFlyZones, ArrayList<LongLat> landmarkCoordinates, ArrayList<LongLat> shopCoordinates){
         this.noFlyZones = noFlyZones;
         this.landmarkCoordinates = landmarkCoordinates;
+        this.shopCoordinates = shopCoordinates;
 
     }
 
@@ -54,19 +56,51 @@ public class Drone {
         return ll;
     }
 
-    public static LongLat getIntermediate(LongLat currll){
-        ArrayList<LongLat> ll = getLandmarkDistances(currll);
+    public static ArrayList<LongLat> getShopDistances(LongLat curr){
+        HashMap<LongLat, Double> shopMap = new HashMap<>();
 
-        while (!ll.isEmpty()) {
-            LongLat closestLandmark = ll.get(0);
+        for (LongLat ll : shopCoordinates){
+            shopMap.put(ll, curr.distanceTo(ll));
+        }
+
+        //System.out.println(deliveryMap.keySet());
+        //System.out.println(deliveryMap.values());
+        shopMap = Orders.sortByValueDouble(shopMap);
+        //System.out.println(deliveryMap.keySet());
+        //System.out.println(deliveryMap.values());
+
+        ArrayList<LongLat> ll = new ArrayList<>();
+        ll.addAll(shopMap.keySet());
+
+        return ll;
+    }
+
+    public static LongLat getIntermediate(LongLat currll){
+        ArrayList<LongLat> llLandmarks = getLandmarkDistances(currll);
+
+        while (!llLandmarks.isEmpty()) {
+            LongLat closestLandmark = llLandmarks.get(0);
             Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestLandmark.longitude, closestLandmark.latitude);
 
-            if (isIntersect(line, noFlyZones)) {
-                ll.remove(0);
+            if (isIntersect(line, noFlyZones) || currll.closeTo(closestLandmark)) {
+                llLandmarks.remove(0);
             } else {
                 return closestLandmark;
             }
         }
+
+        ArrayList<LongLat> llshops = getShopDistances(currll);
+        while (!llshops.isEmpty()) {
+            LongLat closestShop = llshops.get(llshops.size()-1);
+            Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestShop.longitude, closestShop.latitude);
+
+            if (isIntersect(line, noFlyZones) || currll.closeTo(closestShop)) {
+                llshops.remove(llshops.size()-1);
+            } else {
+                return closestShop;
+            }
+        }
+
         return null;
     }
 
@@ -118,9 +152,15 @@ public class Drone {
             //Path is intersecting so we need to travel to a landmark instead
             if (isIntersect(line, noFlyZones)) {
                 tempDest = getIntermediate(tempCurr);
+                System.out.println(orderNo);
+                System.out.println(tempCurr.longitude + " " + tempCurr.latitude);
+                System.out.println(tempDest.longitude + " " + tempDest.latitude);
                 tempCurr = getMoves(orderNo, tempCurr, tempDest, true, toAppleton);
             } else {
                 shops.remove(0);
+                System.out.println(orderNo);
+                System.out.println(tempCurr.longitude + " " + tempCurr.latitude);
+                System.out.println(tempDest.longitude + " " + tempDest.latitude);
                 tempCurr = getMoves(orderNo, tempCurr, tempDest, false, toAppleton);
             }
 

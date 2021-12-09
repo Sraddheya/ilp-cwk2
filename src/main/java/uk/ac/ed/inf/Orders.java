@@ -79,7 +79,7 @@ public class Orders {
         return  deliveryMap;
     }
 
-    public static ArrayList<LongLat> sortByShopDistance(WebRequests webRequests, Databases databases, LongLat curr, ArrayList<String> shops){
+    public static ArrayList<LongLat> sortByShopDistance(WebRequests webRequests, LongLat curr, ArrayList<String> shops){
         HashMap<LongLat, Double> shopMap = new HashMap<>();
 
         for (String s : shops){

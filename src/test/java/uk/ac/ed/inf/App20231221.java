@@ -7,12 +7,12 @@ import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.*;
 
-public class App
+public class App20231221
 {
     private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
-    private static final String TESTDATE = "2023-12-23";
+    private static final String TESTDATE = "2023-12-21";
 
     public static void main(String[] args) throws SQLException {
         //Connect to web server
@@ -45,10 +45,9 @@ public class App
 
         //Create drone
         Drone drone = new Drone(webRequests.getNoFlyZone(), webRequests.getLandmarkCoordinates(), webRequests.getShopCoordinates());
-
         while(!toDeliver.isEmpty()){
 
-            Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(toDeliver.size() - 1));
+            Orders.OrderInfo currentOrder = allOrders.get("97a4f3b2");
             ArrayList<LongLat> shops = Orders.sortByShopDistance(webRequests, curr, currentOrder.shops);
             LongLat dest = webRequests.w3wToLongLat(currentOrder.deliverTo);
             shops.add(dest);
@@ -75,8 +74,7 @@ public class App
                 toDeliver.remove(toDeliver.size() - 1);
                 drone.tempMovement = new ArrayList<>();
                 drone.movesToTempDest = 0;
-                System.out.println("move"
-                );
+                System.out.println("move");
             }
 
         }
