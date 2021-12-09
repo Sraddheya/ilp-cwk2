@@ -8,7 +8,7 @@ public class App
     private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
-    private static final String TESTDATE = "2023-01-02";
+    private static final String TESTDATE = "2023-09-08";
 
     public static void main(String[] args) {
         //Connect to web server
@@ -58,12 +58,12 @@ public class App
             }
 
             //Flying from curr to final destination after picking up items
-            LongLat tempCurr = drone.fly(currentOrder.orderNo, curr, shops, false);
+            LongLat tempCurr = drone.getFlightPath(currentOrder.orderNo, curr, shops, false);
 
             //Flying back to Appleton
             shops.clear();
             shops.add(AT_COORDINATES);
-            drone.fly(currentOrder.orderNo, curr, shops, true);
+            drone.getFlightPath(currentOrder.orderNo, curr, shops, true);
 
             int movesRemainingAfterDelivery = drone.remainingMoves - drone.movesToTempDest;
 
@@ -81,7 +81,7 @@ public class App
                // drone.movesToTempDest = 0;
                 System.out.println("move"
                 );
-                databases.addFlightPathToDB(drone.tempMovement);
+                //databases.addFlightPathToDB(drone.tempMovement);
                 drone.tempMovement = new ArrayList<>();
                 drone.movesToTempDest = 0;
             }

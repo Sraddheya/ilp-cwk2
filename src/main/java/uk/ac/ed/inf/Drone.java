@@ -14,6 +14,13 @@ public class Drone {
     ArrayList<LongLat> landmarkCoordinates = new ArrayList<>();
     ArrayList<LongLat> shopCoordinates = new ArrayList<>();
 
+    /**
+     * Constructor method.
+     *
+     * @param noFlyZones no-fly zones
+     * @param landmarkCoordinates coordinates of all the landmarks
+     * @param shopCoordinates coordinates of all the shops we can order from
+     */
     public Drone(ArrayList<Line2D> noFlyZones, ArrayList<LongLat> landmarkCoordinates, ArrayList<LongLat> shopCoordinates){
         this.noFlyZones = noFlyZones;
         this.landmarkCoordinates = landmarkCoordinates;
@@ -21,6 +28,13 @@ public class Drone {
 
     }
 
+    /**
+     * Checks if the given line intersects with the perimeter of the no-fly zone.
+     *
+     * @param move line to checked
+     * @param perimeter perimeter of the no-fly zone
+     * @return whether the line intersects
+     */
     public boolean isIntersect(Line2D move, ArrayList<Line2D> perimeter){
         for (Line2D line : perimeter){
             if (move.intersectsLine(line)){
@@ -30,6 +44,13 @@ public class Drone {
         return false;
     }
 
+    /**
+     * Calculates the angle between two coordinates.
+     *
+     * @param currll starting coordinate
+     * @param destll destination coordinate
+     * @return angle between the coordinates
+     */
     public int getAngle(LongLat currll, LongLat destll){
         double y = destll.latitude - currll.latitude;
         double x = destll.longitude - currll.longitude;
@@ -37,7 +58,14 @@ public class Drone {
         return (int) Math.round(angle/10.0) * 10;
     }
 
-    public ArrayList<LongLat> getBuildingDistances(LongLat curr, ArrayList<LongLat> buildings){
+    /**
+     * Sort the given buildings by their distance from the given coordinate in ascending order.
+     *
+     * @param curr coordinate distance needs to be measured from
+     * @param buildings buildings distance needs to be measured from
+     * @return Sorted lost of building coordinates
+     */
+    public ArrayList<LongLat> sortBuildingsByDistances(LongLat curr, ArrayList<LongLat> buildings){
         HashMap<LongLat, Double> buildingMap = new HashMap<>();
 
         for (LongLat ll : buildings){
@@ -52,26 +80,36 @@ public class Drone {
         return ll;
     }
 
+    /**
+     * Getting the coordinate of the intermediate location the drone should fly to if it cannot fly to its
+     * destination without centering the no-fly zone. The first choice of the intermediate destination should
+     * be a landmark, but in the event that no landmarks are reachable the drone should fly to a shop.
+     *
+     * @param currll current location of the drone
+     * @return intermediate destination
+     */
     public LongLat getIntermediate(LongLat currll){
-        ArrayList<LongLat> llLandmarks = getBuildingDistances(currll, landmarkCoordinates);
+        ArrayList<LongLat> llLandmarks = sortBuildingsByDistances(currll, landmarkCoordinates);
 
+        //Find the closest landmark
         while (!llLandmarks.isEmpty()) {
             LongLat closestLandmark = llLandmarks.get(0);
             Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestLandmark.longitude, closestLandmark.latitude);
 
-            if (isIntersect(line, noFlyZones) || currll.closeTo(closestLandmark)) {
+            if (isIntersect(line, noFlyZones) || currll.closeTo(closestLandmark) || !closestLandmark.isConfined()) {
                 llLandmarks.remove(0);
             } else {
                 return closestLandmark;
             }
         }
 
-        ArrayList<LongLat> llshops = getBuildingDistances(currll, shopCoordinates);
+        //Find the furthest shop
+        ArrayList<LongLat> llshops = sortBuildingsByDistances(currll, shopCoordinates);
         while (!llshops.isEmpty()) {
             LongLat closestShop = llshops.get(llshops.size()-1);
             Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestShop.longitude, closestShop.latitude);
 
-            if (isIntersect(line, noFlyZones) || currll.closeTo(closestShop)) {
+            if (isIntersect(line, noFlyZones) || currll.closeTo(closestShop) || !closestShop.isConfined()) {
                 llshops.remove(llshops.size()-1);
             } else {
                 return closestShop;
@@ -81,10 +119,21 @@ public class Drone {
         return null;
     }
 
-    public LongLat getMoves(String orderNo, LongLat curr, LongLat dest, boolean toLandmark, boolean toAppleton){
+    /**
+     * Get the flight path of the drone from the current to the destination location.
+     *
+     * @param orderNo order number of the order the drone is carrying
+     * @param curr current location
+     * @param dest destination location
+     * @param toIntermediate is the drone flying to an intermediate location? If so, the drone should not hover
+     * @param toAppleton is the drone flying to Appleton? If so, the drone should not hover
+     * @return Coordinates at the end of the flightpath
+     */
+    public LongLat getMove(String orderNo, LongLat curr, LongLat dest, boolean toIntermediate, boolean toAppleton){
         ArrayList<Databases.FlightDetails> moves = new ArrayList<>();
         int numMoves = 0;
 
+        //Fly
         while (!curr.closeTo(dest)){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
             newMove.orderNo = orderNo;
@@ -97,7 +146,8 @@ public class Drone {
             moves.add(newMove);
             numMoves++;
         }
-        if (!toLandmark && !toAppleton){
+        //Hover
+        if (!toIntermediate && !toAppleton){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
             newMove.orderNo = orderNo;
             newMove.fromLong = curr.longitude;
@@ -119,26 +169,31 @@ public class Drone {
         return curr;
     }
 
-    public LongLat fly(String orderNo, LongLat curr, ArrayList<LongLat> shops, boolean toAppleton){
+    /**
+     * Get the flightpath of the drone for delivering all the orders or returning to Appleton.
+     *
+     * @param orderNo order number of the order the drone is carrying
+     * @param curr current location
+     * @param shops coordinate of shops the drone must pick up items from
+     * @param toAppleton is the drone flying to Appleton? If so, the drone should not hover
+     * @return Coordinates at the end of the flightpath
+     */
+    public LongLat getFlightPath(String orderNo, LongLat curr, ArrayList<LongLat> shops, boolean toAppleton){
         LongLat tempCurr = curr;
 
         while (!shops.isEmpty()){
             LongLat tempDest = shops.get(0);
             Line2D line = new Line2D.Double(tempCurr.longitude, tempCurr.latitude, tempDest.longitude, tempDest.latitude);
 
-            //Path is intersecting so we need to travel to a landmark instead
+
             if (isIntersect(line, noFlyZones)) {
+                //Path is intersecting so we need to travel to a landmark instead
                 tempDest = getIntermediate(tempCurr);
-                System.out.println(orderNo);
-                System.out.println(tempCurr.longitude + " " + tempCurr.latitude);
-                System.out.println(tempDest.longitude + " " + tempDest.latitude);
-                tempCurr = getMoves(orderNo, tempCurr, tempDest, true, toAppleton);
+                tempCurr = getMove(orderNo, tempCurr, tempDest, true, toAppleton);
             } else {
+                //Can move straight to the destination
                 shops.remove(0);
-                System.out.println(orderNo);
-                System.out.println(tempCurr.longitude + " " + tempCurr.latitude);
-                System.out.println(tempDest.longitude + " " + tempDest.latitude);
-                tempCurr = getMoves(orderNo, tempCurr, tempDest, false, toAppleton);
+                tempCurr = getMove(orderNo, tempCurr, tempDest, false, toAppleton);
             }
 
         }
