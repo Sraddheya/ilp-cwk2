@@ -3,16 +3,20 @@ package uk.ac.ed.inf;
 import java.awt.geom.Line2D;
 import java.util.*;
 
+/**
+ * Class with methods related to flying the drone and creating the flightpath.
+ */
+
 public class Drone {
-    int remainingMoves = 1500;
-    int movesToAppleton = 0;
-    int movesToTempDest = 0;
-    ArrayList<Databases.FlightDetails> deliveredMovement = new ArrayList<>();
-    ArrayList<Databases.FlightDetails> appletonMovement = new ArrayList<>();
-    ArrayList<Databases.FlightDetails> tempMovement = new ArrayList<>();
-    ArrayList<Line2D> noFlyZones = new ArrayList<>();
-    ArrayList<LongLat> landmarkCoordinates = new ArrayList<>();
-    ArrayList<LongLat> shopCoordinates = new ArrayList<>();
+    private int remainingMoves = 1500;
+    private int movesToAppleton = 0;
+    private int movesToTempDest = 0;
+    private ArrayList<Databases.FlightDetails> deliveredMovement = new ArrayList<>();
+    private ArrayList<Databases.FlightDetails> appletonMovement = new ArrayList<>();
+    private ArrayList<Databases.FlightDetails> tempMovement = new ArrayList<>();
+    private ArrayList<Line2D> noFlyZones = new ArrayList<>();
+    private ArrayList<LongLat> landmarkCoordinates = new ArrayList<>();
+    private ArrayList<LongLat> shopCoordinates = new ArrayList<>();
 
     /**
      * Constructor method.
@@ -21,38 +25,50 @@ public class Drone {
      * @param landmarkCoordinates coordinates of all the landmarks
      * @param shopCoordinates coordinates of all the shops we can order from
      */
-    public Drone(ArrayList<Line2D> noFlyZones, ArrayList<LongLat> landmarkCoordinates, ArrayList<LongLat> shopCoordinates){
+    protected Drone(ArrayList<Line2D> noFlyZones, ArrayList<LongLat> landmarkCoordinates, ArrayList<LongLat> shopCoordinates){
         this.noFlyZones = noFlyZones;
         this.landmarkCoordinates = landmarkCoordinates;
         this.shopCoordinates = shopCoordinates;
 
     }
 
-    public int getRemainingMoves(){
+    /**
+     * Getter method
+     *
+     * @return number of moves left until battery runs out
+     */
+    protected int getRemainingMoves(){
         return this.remainingMoves;
     }
 
-    public int getMovesToAppleton(){
+    /**
+     * Getter method
+     *
+     * @return number of moves taken to reach Appleton
+     */
+    protected int getMovesToAppleton(){
         return this.movesToAppleton;
     }
 
-    public int getMovesToTempDest(){
+    /**
+     * Getter method
+     *
+     * @return number of moves to reach the destination
+     */
+    protected int getMovesToTempDest(){
         return this.movesToTempDest;
     }
 
-    public ArrayList<Databases.FlightDetails> getDeliveredMovement(){
+    /**
+     * Getter method
+     *
+     * @return Flightpath to reach appleton or a delivery point
+     */
+    protected ArrayList<Databases.FlightDetails> getDeliveredMovement(){
         return this.deliveredMovement;
     }
 
-    public ArrayList<Databases.FlightDetails> getAppletonMovement(){
-        return this.appletonMovement;
-    }
-
-    public ArrayList<Databases.FlightDetails> getTempMovement(){
-        return this.tempMovement;
-    }
-
-    public void addToDeliveredMovement(boolean toAppleton){
+    protected void addToDeliveredMovement(boolean toAppleton){
         if (toAppleton){
             this.deliveredMovement.addAll(appletonMovement);
         } else {
@@ -60,18 +76,28 @@ public class Drone {
         }
     }
 
-    public void setRemainingMoves(int numMoves){
+    /**
+     * Setter method
+     *
+     * @param numMoves number of moves remaining until battery runs out
+     */
+    protected void setRemainingMoves(int numMoves){
         remainingMoves = numMoves;
     }
 
-    public void resetMovesToTempDest(){
+    /**
+     * Resets number of moves taken to reach the destination to 0.
+     */
+    protected void resetMovesToTempDest(){
         this.movesToTempDest = 0;
     }
 
-    public void resetTempMovement(){
+    /**
+     * Resets flightpath to reach destination to new list
+     */
+    protected void resetTempMovement(){
         this.tempMovement = new ArrayList<>();
     }
-
 
     /**
      * Checks if the given line intersects with the perimeter of the no-fly zone.
@@ -80,7 +106,7 @@ public class Drone {
      * @param perimeter perimeter of the no-fly zone
      * @return whether the line intersects
      */
-    public boolean isIntersect(Line2D move, ArrayList<Line2D> perimeter){
+    private boolean isIntersect(Line2D move, ArrayList<Line2D> perimeter){
         for (Line2D line : perimeter){
             if (move.intersectsLine(line)){
                 return true;
@@ -96,7 +122,7 @@ public class Drone {
      * @param destll destination coordinate
      * @return angle between the coordinates
      */
-    public int getAngle(LongLat currll, LongLat destll){
+    private int getAngle(LongLat currll, LongLat destll){
         double y = destll.latitude - currll.latitude;
         double x = destll.longitude - currll.longitude;
         double angle = Math.toDegrees(Math.atan2(y, x));
@@ -110,7 +136,7 @@ public class Drone {
      * @param buildings buildings distance needs to be measured from
      * @return Sorted lost of building coordinates
      */
-    public ArrayList<LongLat> sortBuildingsByDistances(LongLat curr, ArrayList<LongLat> buildings){
+    private ArrayList<LongLat> sortBuildingsByDistances(LongLat curr, ArrayList<LongLat> buildings){
         HashMap<LongLat, Double> buildingMap = new HashMap<>();
 
         for (LongLat ll : buildings){
@@ -133,7 +159,7 @@ public class Drone {
      * @param currll current location of the drone
      * @return intermediate destination
      */
-    public LongLat getIntermediate(LongLat currll){
+    private LongLat getIntermediate(LongLat currll){
         ArrayList<LongLat> llLandmarks = sortBuildingsByDistances(currll, this.landmarkCoordinates);
 
         //Find the closest landmark
@@ -174,7 +200,7 @@ public class Drone {
      * @param toAppleton is the drone flying to Appleton? If so, the drone should not hover
      * @return Coordinates at the end of the flightpath
      */
-    public LongLat getMove(String orderNo, LongLat curr, LongLat dest, boolean toIntermediate, boolean toAppleton){
+    private LongLat getMove(String orderNo, LongLat curr, LongLat dest, boolean toIntermediate, boolean toAppleton){
         ArrayList<Databases.FlightDetails> moves = new ArrayList<>();
         int numMoves = 0;
         String tempOrderNo;
@@ -230,7 +256,7 @@ public class Drone {
      * @param toAppleton is the drone flying to Appleton? If so, the drone should not hover
      * @return Coordinates at the end of the flightpath
      */
-    public LongLat getFlightPath(String orderNo, LongLat curr, ArrayList<LongLat> shops, boolean toAppleton){
+    protected LongLat getFlightPath(String orderNo, LongLat curr, ArrayList<LongLat> shops, boolean toAppleton){
         LongLat tempCurr = curr;
 
         while (!shops.isEmpty()){

@@ -8,18 +8,18 @@ public class LongLat {
     /**
      * Immutable constant variables to mark the edges of the confinement area.
      */
-    public final double LONG_MAX = -3.184319;
-    public final double lONG_MIN = -3.192473;
-    public final double LAT_MAX = 55.946233;
-    public final double LAT_MIN = 55.942617;
+    private final double LONG_MAX = -3.184319;
+    private final double lONG_MIN = -3.192473;
+    private final double LAT_MAX = 55.946233;
+    private final double LAT_MIN = 55.942617;
 
     /**
      * Immutable constant variables for the length one move can take
      */
-    public final double LENGTH = 0.00015;
+    private final double LENGTH = 0.00015;
 
-    public double longitude;
-    public double latitude;
+    protected double longitude;
+    protected double latitude;
 
     /**
      * Constructor method
@@ -27,7 +27,7 @@ public class LongLat {
      * @param longitude longitude of the start location of the drone
      * @param latitude latitude of the start location of the drone
      */
-    public LongLat (double longitude, double latitude){
+    protected LongLat (double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
     }
@@ -37,7 +37,7 @@ public class LongLat {
      *
      * @return true if the current point is within the confinement area.
      */
-    public boolean isConfined (){
+    protected boolean isConfined (){
         if (longitude <= LONG_MAX && longitude >= lONG_MIN
             && latitude <= LAT_MAX && latitude >= LAT_MIN){
             return true;
@@ -52,7 +52,7 @@ public class LongLat {
      * @param point to calculate distance between
      * @return distance between the two points
      */
-    public double distanceTo (LongLat point){
+    protected double distanceTo (LongLat point){
         double distance = Math.sqrt(Math.pow((longitude-point.longitude), 2) + Math.pow((latitude-point.latitude), 2));
         return distance;
     }
@@ -67,7 +67,7 @@ public class LongLat {
      * @param point that we need to find out if we are 'close' to
      * @return true if the two points are "close"
      */
-    public boolean closeTo (LongLat point){
+    protected boolean closeTo (LongLat point){
         if (distanceTo(point) <= LENGTH){
             return true;
         }
@@ -82,7 +82,7 @@ public class LongLat {
      * @param angle the angle the drone moves in the direction of
      * @return the new coordinates of the drone
      */
-    public LongLat nextPosition (int angle){
+    protected LongLat nextPosition (int angle){
         //Initialising new coordinate to return
         LongLat new_point = new LongLat(longitude, latitude);
 

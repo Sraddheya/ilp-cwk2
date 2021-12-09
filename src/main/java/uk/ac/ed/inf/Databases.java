@@ -29,7 +29,7 @@ public class Databases {
     /**
      * Class to store flight path details.
      */
-    public static class FlightDetails{
+    protected static class FlightDetails{
         String orderNo;
         double fromLong;
         double fromLat;
@@ -44,7 +44,7 @@ public class Databases {
      * @param machine machine to be used.
      * @param port port to be used.
      */
-    public Databases(String machine, String port){
+    protected Databases(String machine, String port){
         this.machine = machine;
         this.port = port;
         setUpConnection();
@@ -55,7 +55,7 @@ public class Databases {
      *
      * @throws Exception if the connection is not able to be established.
      */
-    public void setUpConnection(){
+    private void setUpConnection(){
         try {
             String link = "jdbc:derby://" + this.machine + ":" + this.port + "/derbyDB";
             this.conn = DriverManager.getConnection(link);
@@ -71,7 +71,7 @@ public class Databases {
      *
      * @throws Exception if the table was not able to be created.
      */
-    public void createDelivery(){
+    protected void createDelivery(){
         try {
            // Create a statement object that we can use for running various SQL statement commands against the database
             Statement statement = this.conn.createStatement();
@@ -98,7 +98,7 @@ public class Databases {
      * @param costs delivery costs of the order to be added to the table.
      * @throws Exception if the order could not be added.
      */
-    public void addDeliveriesToDB(ArrayList<Orders.OrderInfo> orders, ArrayList<Integer> costs){
+    protected void addDeliveriesToDB(ArrayList<Orders.OrderInfo> orders, ArrayList<Integer> costs){
       for (int i = 0; i<orders.size(); i++) {
             try {
                 PreparedStatement stmt = this.conn.prepareStatement("insert into deliveries values (?,?,?)");
@@ -119,7 +119,7 @@ public class Databases {
      *
      * @throws Exception if the table was not able to be created.
      */
-    public void createFlightPath(){
+    protected void createFlightPath(){
         try {
             // Create a statement object that we can use for running various SQL statement commands against the database
             Statement statement = this.conn.createStatement();
@@ -145,7 +145,7 @@ public class Databases {
      * @param ordDate date of which we are delivering the orders.
      * @throws Exception
      */
-    public void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String[] ordDate){
+    protected void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String[] ordDate){
         ArrayList<Point> pointList = new ArrayList<>();
         for (FlightDetails f : flightDetails) {
             Point fromPoint = Point.fromLngLat(f.fromLong, f.fromLat);
@@ -160,8 +160,8 @@ public class Databases {
         FeatureCollection fc = FeatureCollection.fromFeature(f);
         String json = fc.toJson();
         try {
-            File geojsonPath = new File("drone-" + ordDate[0] + "-" + ordDate[1] + "-" + ordDate[2] + ".geojson");
-            FileWriter writer = new FileWriter("drone-" + ordDate[0] + "-" + ordDate[1] + "-" + ordDate[2] + ".geojson", false);
+            File geojsonPath = new File("drone-" + ordDate[2] + "-" + ordDate[1] + "-" + ordDate[0] + ".geojson");
+            FileWriter writer = new FileWriter("drone-" + ordDate[2] + "-" + ordDate[1] + "-" + ordDate[0] + ".geojson", false);
             PrintWriter print_line = new PrintWriter(writer);
             print_line.println(json);
             print_line.close();
@@ -177,7 +177,7 @@ public class Databases {
      * @param movements the flight paths to be added.
      * @throws Exception if the order could not be added.
      */
-    public void addFlightPathToDB(ArrayList<FlightDetails> movements){
+    protected void addFlightPathToDB(ArrayList<FlightDetails> movements){
         for (FlightDetails fd: movements){
             try{
                 PreparedStatement stmt = this.conn.prepareStatement("insert into flightpath values (?,?,?,?,?,?)");
@@ -203,7 +203,7 @@ public class Databases {
      * @return orders placed and their details.
      * @throws Exception if unable to get the orders on the date.
      */
-    public ArrayList<Orders.OrderInfo> getOrders(String ordDate){
+    protected ArrayList<Orders.OrderInfo> getOrders(String ordDate){
 
         ArrayList<Orders.OrderInfo> ordersList = new ArrayList<>();
 
@@ -236,7 +236,7 @@ public class Databases {
      * @return items in that order.
      * @throws Exception if unable to get the items for that order.
      */
-    public ArrayList<String> getItems(String ordNo){
+    protected ArrayList<String> getItems(String ordNo){
 
         ArrayList<String> itemList = new ArrayList<>();
 

@@ -3,12 +3,15 @@ package uk.ac.ed.inf;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Orders {
+/**
+ * Class with methods related to information about a particular order.
+ */
 
+public class Orders {
     /**
      * Class to store information about each order.
      */
-    public static class OrderInfo{
+    protected static class OrderInfo{
         String orderNo;
         String customer;
         String deliverTo;
@@ -16,10 +19,14 @@ public class Orders {
         ArrayList<String> shops;
     }
 
-    // function to sort hashmap by values in ascending order
-    public static HashMap<LongLat, Double>
-    sortByValueDouble(HashMap<LongLat, Double> hm)
-    {
+    /**
+     * Sorts hashmap by value in ascending order.
+     *
+     * @param hm hashmap to sort
+     * @return sorted hashmap
+     */
+    protected static HashMap<LongLat, Double>
+    sortByValueDouble(HashMap<LongLat, Double> hm) {
         HashMap<LongLat, Double> temp
                 = hm.entrySet()
                 .stream()
@@ -42,7 +49,7 @@ public class Orders {
      * @param date date that the orders were placed
      * @return Map of orders where the key is the orderNo and the value is the information about the order
      */
-    public Map<String, OrderInfo> getOrdersInfo(WebRequests webRequests, Databases databases, String date){
+    protected Map<String, OrderInfo> getOrdersInfo(WebRequests webRequests, Databases databases, String date){
         Map<String, OrderInfo> ordersMap = new HashMap<>();
 
         ArrayList<OrderInfo> orders = databases.getOrders(date);
@@ -62,7 +69,7 @@ public class Orders {
      * @param orders Orders to be sorted
      * @return Orders sorted in Hashmap format where the key is the orderNo and the value is it's delivery cost
      */
-    public HashMap<String, Integer> sortByDeliveryCost(WebRequests webRequests, Collection<OrderInfo> orders){
+    protected HashMap<String, Integer> sortByDeliveryCost(WebRequests webRequests, Collection<OrderInfo> orders){
         HashMap<String, Integer> unsortedMap = new HashMap<>();
 
         for (OrderInfo o : orders){
@@ -89,7 +96,7 @@ public class Orders {
      * @param shops all the shops order can be placed from
      * @return List of coordinates of shops sorted by their distance form the given coordinate
      */
-    public ArrayList<LongLat> sortByShopDistance(WebRequests webRequests, LongLat curr, ArrayList<String> shops){
+    protected ArrayList<LongLat> sortByShopDistance(WebRequests webRequests, LongLat curr, ArrayList<String> shops){
         HashMap<LongLat, Double> shopMap = new HashMap<>();
 
         for (String s : shops){
@@ -111,7 +118,7 @@ public class Orders {
      * @param coordinates points to check
      * @return whether all the points are in the confinement zone or not
      */
-    public boolean allConfined(ArrayList<LongLat> coordinates){
+    protected boolean allConfined(ArrayList<LongLat> coordinates){
         for (LongLat l : coordinates){
             if (!l.isConfined()){
                 return false;

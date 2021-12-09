@@ -16,7 +16,7 @@ public class App
         WEBPORT = args[3];
         JDBCPORT = args[4];
 
-        //re-formatting date from ["DD", "MM", "YYYY"] into YYYY-MM-DD
+        //Formatting date from ["DD", "MM", "YYYY"] into YYYY-MM-DD
         Collections.reverse(Arrays.asList(dateArray));
         String formattedDate = String.join(",", dateArray);
         DATE = formattedDate.replace(",", "-");
