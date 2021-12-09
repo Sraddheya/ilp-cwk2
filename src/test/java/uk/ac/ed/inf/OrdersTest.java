@@ -23,7 +23,7 @@ public class OrdersTest {
 
         //Get orders
         Map<String, Orders.OrderInfo> allOrders = orders.getOrdersInfo(webRequests, databases, TESTDATE);
-        HashMap<String, Integer> sortedOrders = orders.sortByDeliveryCost(webRequests, databases, allOrders.values());
+        HashMap<String, Integer> sortedOrders = orders.sortByDeliveryCost(webRequests, allOrders.values());
 
     }
 }

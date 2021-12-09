@@ -1,6 +1,5 @@
 package uk.ac.ed.inf;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,24 +11,6 @@ public class Orders {
         String deliverTo;
         ArrayList<String> items;
         ArrayList<String> shops;
-    }
-
-    // function to sort hashmap by values in ascending order
-    public static HashMap<String, Integer>
-    sortByValue(HashMap<String, Integer> hm)
-    {
-        HashMap<String, Integer> temp
-                = hm.entrySet()
-                .stream()
-                .sorted((i1, i2)
-                        -> i1.getValue().compareTo(
-                        i2.getValue()))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1, LinkedHashMap::new));
-
-        return temp;
     }
 
     // function to sort hashmap by values in ascending order
@@ -63,23 +44,26 @@ public class Orders {
         return ordersMap;
     }
 
-    public HashMap<String, Integer> sortByDeliveryCost(WebRequests webRequests, Databases databases, Collection<OrderInfo> orders){
-        HashMap<String, Integer> deliveryMap = new HashMap<>();
+    public HashMap<String, Integer> sortByDeliveryCost(WebRequests webRequests, Collection<OrderInfo> orders){
+        HashMap<String, Integer> unsortedMap = new HashMap<>();
 
         for (OrderInfo o : orders){
-            deliveryMap.put(o.orderNo, webRequests.getDeliveryCost(o.items));
+            unsortedMap.put(o.orderNo, webRequests.getDeliveryCost(o.items));
         }
 
-        //System.out.println(deliveryMap.keySet());
-        //System.out.println(deliveryMap.values());
-        deliveryMap = sortByValue(deliveryMap);
-        //System.out.println(deliveryMap.keySet());
-        //System.out.println(deliveryMap.values());
+        //LinkedHashMap preserve the ordering of elements in which they are inserted
+        LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
 
-        return  deliveryMap;
+        //Use Comparator.reverseOrder() for reverse ordering
+        unsortedMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+
+        return  sortedMap;
     }
 
-    public static ArrayList<LongLat> sortByShopDistance(WebRequests webRequests, LongLat curr, ArrayList<String> shops){
+    public ArrayList<LongLat> sortByShopDistance(WebRequests webRequests, LongLat curr, ArrayList<String> shops){
         HashMap<LongLat, Double> shopMap = new HashMap<>();
 
         for (String s : shops){
@@ -87,16 +71,22 @@ public class Orders {
             shopMap.put(ll, curr.distanceTo(ll));
         }
 
-        //System.out.println(deliveryMap.keySet());
-        //System.out.println(deliveryMap.values());
         shopMap = sortByValueDouble(shopMap);
-        //System.out.println(deliveryMap.keySet());
-        //System.out.println(deliveryMap.values());
 
         ArrayList<LongLat> ll = new ArrayList<>();
         ll.addAll(shopMap.keySet());
 
         return ll;
+    }
+
+    public boolean allConfined(ArrayList<LongLat> coordinates){
+        for (LongLat l : coordinates){
+            if (!l.isConfined()){
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

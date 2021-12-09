@@ -9,12 +9,13 @@ import java.util.*;
 
 public class App
 {
+    private static final LongLat AT_COORDINATES = new LongLat(-3.186874, 55.944494);
     private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
-    private static final String TESTDATE = "2023-12-23";
+    private static final String TESTDATE = "2023-12-31";
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
         //Connect to web server
         WebRequests webRequests = new WebRequests(MACHINE, WEBPORT);
         webRequests.parseMenu();
@@ -30,7 +31,7 @@ public class App
         Map<String, Orders.OrderInfo> allOrders = orders.getOrdersInfo(webRequests, databases, TESTDATE);
 
         //Sort orders by delivery cost
-        HashMap<String, Integer> sortedOrdersNo = orders.sortByDeliveryCost(webRequests, databases, allOrders.values());
+        HashMap<String, Integer> sortedOrdersNo = orders.sortByDeliveryCost(webRequests, allOrders.values());
 
         //Get OrderNos of sortedOrderNo
         ArrayList<String> toDeliver = new ArrayList<>();
@@ -40,26 +41,34 @@ public class App
         ArrayList<String> delivered = new ArrayList<>();
 
         //Set current location to Appleton Tower at beginning of deliveries;
-        LongLat curr= new LongLat(-3.186874, 55.944494);
-        LongLat at = new LongLat(-3.186874, 55.944494);
+        LongLat curr= AT_COORDINATES;
 
         //Create drone
         Drone drone = new Drone(webRequests.getNoFlyZone(), webRequests.getLandmarkCoordinates(), webRequests.getShopCoordinates());
 
         while(!toDeliver.isEmpty()){
 
-            Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(toDeliver.size() - 1));
-            ArrayList<LongLat> shops = Orders.sortByShopDistance(webRequests, curr, currentOrder.shops);
+            Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(0));
+            ArrayList<LongLat> shops = orders.sortByShopDistance(webRequests, curr, currentOrder.shops);
             LongLat dest = webRequests.w3wToLongLat(currentOrder.deliverTo);
             shops.add(dest);
 
+            //Check destination and shops are in confinement area
+            if (!orders.allConfined(shops)){
+                toDeliver.remove(0);
+                drone.tempMovement = new ArrayList<>();
+                drone.movesToTempDest = 0;
+                System.err.println("Order " + currentOrder.orderNo + "has a drop of location or shop to pick up an item from outside of the drone confinement area");
+                continue;
+            }
+
             //Flying from curr to final destination after picking up items
-            LongLat tempCurr = Drone.fly(currentOrder.orderNo, curr, shops, false);
+            LongLat tempCurr = drone.fly(currentOrder.orderNo, curr, shops, false);
 
             //Flying back to Appleton
             shops.clear();
-            shops.add(at);
-            Drone.fly(currentOrder.orderNo, curr, shops, true);
+            shops.add(AT_COORDINATES);
+            drone.fly(currentOrder.orderNo, curr, shops, true);
 
             int movesRemainingAfterDelivery = drone.remainingMoves - drone.movesToTempDest;
 
@@ -71,8 +80,8 @@ public class App
                 curr = tempCurr;
                 drone.remainingMoves = movesRemainingAfterDelivery;
                 drone.deliveredMovement.addAll(drone.tempMovement);
-                delivered.add(toDeliver.get(toDeliver.size()-1));
-                toDeliver.remove(toDeliver.size() - 1);
+                delivered.add(toDeliver.get(0));
+                toDeliver.remove(0);
                 drone.tempMovement = new ArrayList<>();
                 drone.movesToTempDest = 0;
                 System.out.println("move"
@@ -85,8 +94,8 @@ public class App
         drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
         drone.deliveredMovement.addAll(drone.appletonMovement);
 
-        Databases.addFlightPathToJson(drone.deliveredMovement, "1234");
-        //Databases.addFlightPathToDB(drone.deliveredMovement);
+        databases.addFlightPathToJson(drone.deliveredMovement, "1234");
+        databases.addFlightPathToDB(drone.deliveredMovement);
 
         ArrayList<Orders.OrderInfo> deliveredInfo = new ArrayList<>();
         ArrayList<Integer> costs = new ArrayList<>();
@@ -95,7 +104,7 @@ public class App
             deliveredInfo.add(allOrders.get(o));
             costs.add(sortedOrdersNo.get(o));
         }
-        Databases.addDeliveriesToDB(deliveredInfo, costs);
+        databases.addDeliveriesToDB(deliveredInfo, costs);
     }
 
 }

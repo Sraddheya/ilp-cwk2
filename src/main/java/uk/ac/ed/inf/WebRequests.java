@@ -104,7 +104,7 @@ public class WebRequests {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (ConnectException e){
-            System.out.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
+            System.err.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
             System.exit(1); // Exit the application
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -114,11 +114,11 @@ public class WebRequests {
         Type listType = new TypeToken<ArrayList<ShopDetails1>>() {}.getType();
         this.shopList = new Gson().fromJson(response.body(), listType);
 
-        makeItemCost();
-        makeItemsShop();
+        setItemCost();
+        msetItemsShop();
     }
 
-    public void makeItemCost(){
+    public void setItemCost(){
         for (ShopDetails1 sd : this.shopList){
             for (ShopDetails1.Menu m : sd.menu){
                 itemCostMap.put(m.item, m.pence);
@@ -126,7 +126,7 @@ public class WebRequests {
         }
     }
 
-    public void makeItemsShop(){
+    public void msetItemsShop(){
         for (ShopDetails1 sd : this.shopList){
             for (ShopDetails1.Menu m : sd.menu){
                 itemShopMap.put(m.item, sd.location);

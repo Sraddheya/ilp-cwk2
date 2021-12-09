@@ -15,6 +15,7 @@ public class App20231221
     private static final String TESTDATE = "2023-12-21";
 
     public static void main(String[] args) throws SQLException {
+        /**
         //Connect to web server
         WebRequests webRequests = new WebRequests(MACHINE, WEBPORT);
         webRequests.parseMenu();
@@ -83,8 +84,8 @@ public class App20231221
         drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
         drone.deliveredMovement.addAll(drone.appletonMovement);
 
-        Databases.addFlightPathToJson(drone.deliveredMovement, "1234");
-        //Databases.addFlightPathToDB(drone.deliveredMovement);
+        databases.addFlightPathToJson(drone.deliveredMovement, "1234");
+        //databases.addFlightPathToDB(drone.deliveredMovement);
 
         ArrayList<Orders.OrderInfo> deliveredInfo = new ArrayList<>();
         ArrayList<Integer> costs = new ArrayList<>();
@@ -93,7 +94,8 @@ public class App20231221
             deliveredInfo.add(allOrders.get(o));
             costs.add(sortedOrdersNo.get(o));
         }
-        Databases.addDeliveriesToDB(deliveredInfo, costs);
+        databases.addDeliveriesToDB(deliveredInfo, costs);
     }
-
+**/
+    }
 }
