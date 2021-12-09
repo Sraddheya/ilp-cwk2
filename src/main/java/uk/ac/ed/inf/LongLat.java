@@ -98,10 +98,9 @@ public class LongLat {
             }
             else {
                 //Error message because angle does not satisfy the definition of a 'move'
-                System.out.println("ERROR: Drone can only be sent in a direction which is a multiple of 10 degrees");
+                System.err.println("ERROR: Drone can only be sent in a direction which is a multiple of 10 degrees");
             }
         }
-
         return new_point;
     }
 }

@@ -1,12 +1,15 @@
 package uk.ac.ed.inf;
 
 import com.mapbox.geojson.*;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+
+/**
+ * Class to handle methods where access to the database is needed.
+ */
 
 public class Databases {
     /**

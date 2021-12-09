@@ -3,7 +3,6 @@ package uk.ac.ed.inf;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mapbox.geojson.*;
-
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -16,6 +15,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * Class to handle methods where access to the web server is needed.
+ */
 
 public class WebRequests {
     /**
@@ -103,7 +106,7 @@ public class WebRequests {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (ConnectException e){
-            System.out.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
+            System.err.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
             System.exit(1); // Exit the application
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -242,7 +245,7 @@ public class WebRequests {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (ConnectException e){
-            System.out.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
+            System.err.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
             System.exit(1); // Exit the application
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -284,7 +287,7 @@ public class WebRequests {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (ConnectException e){
-            System.out.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
+            System.err.println("Fatal error: Unable to connect to " + machine + " at port " + port + ".");
             System.exit(1); // Exit the application
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
