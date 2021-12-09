@@ -4,6 +4,7 @@ import com.mapbox.geojson.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -144,29 +145,29 @@ public class Databases {
      * @param ordDate date of which we are delivering the orders.
      * @throws Exception
      */
-    public void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String ordDate){
-        ArrayList<Feature> fList = new ArrayList<>();
+    public void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String[] ordDate){
+        ArrayList<Point> pointList = new ArrayList<>();
         for (FlightDetails f : flightDetails) {
-            ArrayList<Point> points = new ArrayList<>();
             Point fromPoint = Point.fromLngLat(f.fromLong, f.fromLat);
             Point toPoint = Point.fromLngLat(f.toLong, f.toLat);
-            points.add(fromPoint);
-            points.add(toPoint);
-            LineString l = LineString.fromLngLats(points);
-            Geometry g = (Geometry)l;
-            Feature feat = Feature.fromGeometry(g);
-            fList.add(feat);
+            pointList.add(fromPoint);
+            pointList.add(toPoint);
         }
 
-        FeatureCollection fc = FeatureCollection.fromFeatures(fList);
-
+        //Making geoJson file
+        LineString finalPath = LineString.fromLngLats(pointList);
+        Feature f = Feature.fromGeometry(finalPath);
+        FeatureCollection fc = FeatureCollection.fromFeature(f);
+        String json = fc.toJson();
         try {
-            File file = new File("drone-" + ordDate + ".txt");
-            FileWriter writer = new FileWriter("drone-" + ordDate + ".txt");
-            writer.write(fc.toJson());
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            File geojsonPath = new File("drone-" + ordDate[0] + "-" + ordDate[1] + "-" + ordDate[2] + ".geojson");
+            FileWriter writer = new FileWriter("drone-" + ordDate[0] + "-" + ordDate[1] + "-" + ordDate[2] + ".geojson", false);
+            PrintWriter print_line = new PrintWriter(writer);
+            print_line.println(json);
+            print_line.close();
+        } catch (Exception e) {
+            System.err.println("Error: Unable to add  flight paths to GeoJson file.");
+            System.exit(1);
         }
     }
 

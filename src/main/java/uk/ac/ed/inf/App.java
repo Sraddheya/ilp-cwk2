@@ -5,12 +5,23 @@ import java.util.*;
 public class App
 {
     private static final LongLat AT_COORDINATES = new LongLat(-3.186874, 55.944494);
-    private static final String MACHINE = "localhost";
-    private static final String WEBPORT = "9898";
-    private static final String JDBCPORT = "9876";
-    private static final String TESTDATE = "2023-09-08";
+    private static String MACHINE = "localhost";
+    private static String WEBPORT;
+    private static String JDBCPORT;
+    private static String DATE;
 
     public static void main(String[] args) {
+        //Reading in data
+        String[] dateArray = Arrays.copyOfRange(args, 0, 3);
+        WEBPORT = args[3];
+        JDBCPORT = args[4];
+
+        //re-formatting date from ["DD", "MM", "YYYY"] into YYYY-MM-DD
+        Collections.reverse(Arrays.asList(dateArray));
+        String formattedDate = String.join(",", dateArray);
+        DATE = formattedDate.replace(",", "-");
+
+
         //Connect to web server
         WebRequests webRequests = new WebRequests(MACHINE, WEBPORT);
         webRequests.parseMenu();
@@ -23,7 +34,7 @@ public class App
         Orders orders = new Orders();
 
         //Get orders
-        Map<String, Orders.OrderInfo> allOrders = orders.getOrdersInfo(webRequests, databases, TESTDATE);
+        Map<String, Orders.OrderInfo> allOrders = orders.getOrdersInfo(webRequests, databases, DATE);
 
         //Sort orders by delivery cost
         HashMap<String, Integer> sortedOrdersNo = orders.sortByDeliveryCost(webRequests, allOrders.values());
@@ -88,7 +99,7 @@ public class App
         drone.addToDeliveredMovement(true);
 
         //Add flightpaths
-        databases.addFlightPathToJson(drone.getDeliveredMovement(), "1234");
+        databases.addFlightPathToJson(drone.getDeliveredMovement(), dateArray);
         databases.addFlightPathToDB(drone.getDeliveredMovement());
         System.out.println(drone.getRemainingMoves());
 

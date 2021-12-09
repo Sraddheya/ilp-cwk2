@@ -177,11 +177,18 @@ public class Drone {
     public LongLat getMove(String orderNo, LongLat curr, LongLat dest, boolean toIntermediate, boolean toAppleton){
         ArrayList<Databases.FlightDetails> moves = new ArrayList<>();
         int numMoves = 0;
+        String tempOrderNo;
+
+        if(toAppleton){
+            tempOrderNo = "00000000";
+        } else {
+            tempOrderNo = orderNo;
+        }
 
         //Fly
         while (!curr.closeTo(dest)){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
-            newMove.orderNo = orderNo;
+            newMove.orderNo = tempOrderNo;
             newMove.fromLong = curr.longitude;
             newMove.fromLat = curr.latitude;
             newMove.angle = getAngle(curr, dest);
@@ -194,7 +201,7 @@ public class Drone {
         //Hover
         if (!toIntermediate && !toAppleton){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
-            newMove.orderNo = orderNo;
+            newMove.orderNo = tempOrderNo;
             newMove.fromLong = curr.longitude;
             newMove.fromLat = curr.latitude;
             newMove.angle = -999;
