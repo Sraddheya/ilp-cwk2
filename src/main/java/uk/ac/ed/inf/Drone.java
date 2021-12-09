@@ -28,6 +28,51 @@ public class Drone {
 
     }
 
+    public int getRemainingMoves(){
+        return this.remainingMoves;
+    }
+
+    public int getMovesToAppleton(){
+        return this.movesToAppleton;
+    }
+
+    public int getMovesToTempDest(){
+        return this.movesToTempDest;
+    }
+
+    public ArrayList<Databases.FlightDetails> getDeliveredMovement(){
+        return this.deliveredMovement;
+    }
+
+    public ArrayList<Databases.FlightDetails> getAppletonMovement(){
+        return this.appletonMovement;
+    }
+
+    public ArrayList<Databases.FlightDetails> getTempMovement(){
+        return this.tempMovement;
+    }
+
+    public void addToDeliveredMovement(boolean toAppleton){
+        if (toAppleton){
+            this.deliveredMovement.addAll(appletonMovement);
+        } else {
+            this.deliveredMovement.addAll(tempMovement);
+        }
+    }
+
+    public void setRemainingMoves(int numMoves){
+        remainingMoves = numMoves;
+    }
+
+    public void resetMovesToTempDest(){
+        this.movesToTempDest = 0;
+    }
+
+    public void resetTempMovement(){
+        this.tempMovement = new ArrayList<>();
+    }
+
+
     /**
      * Checks if the given line intersects with the perimeter of the no-fly zone.
      *
@@ -89,14 +134,14 @@ public class Drone {
      * @return intermediate destination
      */
     public LongLat getIntermediate(LongLat currll){
-        ArrayList<LongLat> llLandmarks = sortBuildingsByDistances(currll, landmarkCoordinates);
+        ArrayList<LongLat> llLandmarks = sortBuildingsByDistances(currll, this.landmarkCoordinates);
 
         //Find the closest landmark
         while (!llLandmarks.isEmpty()) {
             LongLat closestLandmark = llLandmarks.get(0);
             Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestLandmark.longitude, closestLandmark.latitude);
 
-            if (isIntersect(line, noFlyZones) || currll.closeTo(closestLandmark) || !closestLandmark.isConfined()) {
+            if (isIntersect(line, this.noFlyZones) || currll.closeTo(closestLandmark) || !closestLandmark.isConfined()) {
                 llLandmarks.remove(0);
             } else {
                 return closestLandmark;
@@ -104,12 +149,12 @@ public class Drone {
         }
 
         //Find the furthest shop
-        ArrayList<LongLat> llshops = sortBuildingsByDistances(currll, shopCoordinates);
+        ArrayList<LongLat> llshops = sortBuildingsByDistances(currll, this.shopCoordinates);
         while (!llshops.isEmpty()) {
             LongLat closestShop = llshops.get(llshops.size()-1);
             Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestShop.longitude, closestShop.latitude);
 
-            if (isIntersect(line, noFlyZones) || currll.closeTo(closestShop) || !closestShop.isConfined()) {
+            if (isIntersect(line, this.noFlyZones) || currll.closeTo(closestShop) || !closestShop.isConfined()) {
                 llshops.remove(llshops.size()-1);
             } else {
                 return closestShop;
@@ -160,11 +205,11 @@ public class Drone {
         }
 
         if (toAppleton){
-            movesToAppleton = numMoves;
-            appletonMovement = moves;
+            this.movesToAppleton = numMoves;
+            this.appletonMovement = moves;
         } else {
-            movesToTempDest += numMoves;
-            tempMovement.addAll(moves);
+            this.movesToTempDest += numMoves;
+            this.tempMovement.addAll(moves);
         }
         return curr;
     }
@@ -186,7 +231,7 @@ public class Drone {
             Line2D line = new Line2D.Double(tempCurr.longitude, tempCurr.latitude, tempDest.longitude, tempDest.latitude);
 
 
-            if (isIntersect(line, noFlyZones)) {
+            if (isIntersect(line, this.noFlyZones)) {
                 //Path is intersecting so we need to travel to a landmark instead
                 tempDest = getIntermediate(tempCurr);
                 tempCurr = getMove(orderNo, tempCurr, tempDest, true, toAppleton);

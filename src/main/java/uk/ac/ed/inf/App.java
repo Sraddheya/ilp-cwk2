@@ -43,6 +43,7 @@ public class App
 
         while(!toDeliver.isEmpty()){
 
+            //Get the coordinates of the shops to pick up items from for this order
             Orders.OrderInfo currentOrder = allOrders.get(toDeliver.get(0));
             ArrayList<LongLat> shops = orders.sortByShopDistance(webRequests, curr, currentOrder.shops);
             LongLat dest = webRequests.w3wToLongLat(currentOrder.deliverTo);
@@ -51,9 +52,7 @@ public class App
             //Check destination and shops are in confinement area
             if (!orders.allConfined(shops)){
                 toDeliver.remove(0);
-                drone.tempMovement = new ArrayList<>();
-                drone.movesToTempDest = 0;
-                System.err.println("Order " + currentOrder.orderNo + "has a drop of location or shop to pick up an item from outside of the drone confinement area");
+                System.err.println("Order " + currentOrder.orderNo + " has a drop of location or shop to pick up an item from outside of the drone confinement area.");
                 continue;
             }
 
@@ -65,39 +64,35 @@ public class App
             shops.add(AT_COORDINATES);
             drone.getFlightPath(currentOrder.orderNo, curr, shops, true);
 
-            int movesRemainingAfterDelivery = drone.remainingMoves - drone.movesToTempDest;
+            //Check if there are enough moves to fly back to Appleton
+            int movesRemainingAfterDelivery = drone.getRemainingMoves() - drone.getMovesToTempDest();
 
-            if (movesRemainingAfterDelivery <= drone.movesToAppleton){
-                //Fly back to Appleton
+            if (movesRemainingAfterDelivery <= drone.getMovesToAppleton()){
+                //Not enough moves so fly back to Appleton
                 toDeliver.clear();
             } else {
-                //Make delivery
+                //Enough moves so make delivery
                 curr = tempCurr;
-                drone.remainingMoves = movesRemainingAfterDelivery;
-                drone.deliveredMovement.addAll(drone.tempMovement);
+                drone.setRemainingMoves(movesRemainingAfterDelivery);
+                drone.addToDeliveredMovement(false);
                 delivered.add(toDeliver.get(0));
                 toDeliver.remove(0);
-                //drone.tempMovement = new ArrayList<>();
-               // drone.movesToTempDest = 0;
-                System.out.println("move"
-                );
-                //databases.addFlightPathToDB(drone.tempMovement);
-                drone.tempMovement = new ArrayList<>();
-                drone.movesToTempDest = 0;
+                System.out.println("move");
+                drone.resetTempMovement();
+                drone.resetMovesToTempDest();
             }
 
         }
 
-        //Fly back to Appleton
-        drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
-        drone.deliveredMovement.addAll(drone.appletonMovement);
-        databases.addFlightPathToDB(drone.appletonMovement);
-        drone.tempMovement = new ArrayList<>();
-        drone.movesToTempDest = 0;
+        //Add flightpath for flying back to Appleton
+        drone.addToDeliveredMovement(true);
 
-        databases.addFlightPathToJson(drone.deliveredMovement, "1234");
-        //databases.addFlightPathToDB(drone.deliveredMovement);
+        //Add flightpaths
+        databases.addFlightPathToJson(drone.getDeliveredMovement(), "1234");
+        databases.addFlightPathToDB(drone.getDeliveredMovement());
+        System.out.println(drone.getRemainingMoves());
 
+        //Add deliveries
         ArrayList<Orders.OrderInfo> deliveredInfo = new ArrayList<>();
         ArrayList<Integer> costs = new ArrayList<>();
 
