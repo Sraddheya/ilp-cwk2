@@ -9,8 +9,17 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Databases {
+    /**
+     * The machine where the database is running.
+     */
     private String machine;
+    /**
+     * The port where the database is running.
+     */
     private String port;
+    /**
+     * The Connection object use to send SQL queries.
+     */
     private Connection conn;
 
     /**
@@ -34,6 +43,11 @@ public class Databases {
         setUpConnection();
     }
 
+    /**
+     * Assigns the Connection object for the SQL queries.
+     *
+     * @throws Exception if the connection is not able to be established.
+     */
     public void setUpConnection(){
         try {
             String link = "jdbc:derby://" + this.machine + ":" + this.port + "/derbyDB";
@@ -44,17 +58,23 @@ public class Databases {
         }
     }
 
+    /**
+     * Creates the Delivery table in the database. If the table already exists, it is
+     * first deleted, then created.
+     *
+     * @throws Exception if the table was not able to be created.
+     */
     public void createDelivery(){
         try {
            // Create a statement object that we can use for running various SQL statement commands against the database
             Statement statement = this.conn.createStatement();
 
-            //DROPPING DELIVERIES IF IT ALREADY EXISTS
+            //Dropping deliveries if it already exists
             DatabaseMetaData databaseMetadata = this.conn.getMetaData();
             ResultSet resultSet1 = databaseMetadata.getTables(null, null, "DELIVERIES", null);
             if (resultSet1.next()) { statement.execute("drop table deliveries"); }
 
-            //CREATING A DATABASE TABLE
+            //Creating the table
             statement.execute("create table deliveries(" + "orderNo char(8), " + "deliveredTo varchar(19), " + "costInPence int)");
 
         } catch (SQLException throwables) {
@@ -64,6 +84,13 @@ public class Databases {
         }
     }
 
+    /**
+     * Adds the delivered orders to the Delivery table.
+     *
+     * @param orders order to be added to the table.
+     * @param costs delivery costs of the order to be added to the table.
+     * @throws Exception if the order could not be added.
+     */
     public void addDeliveriesToDB(ArrayList<Orders.OrderInfo> orders, ArrayList<Integer> costs){
       for (int i = 0; i<orders.size(); i++) {
             try {
@@ -79,17 +106,23 @@ public class Databases {
         }
     }
 
+    /**
+     * Creates the FlightPath table in the database. If the table already exists, it is
+     * first deleted, then created.
+     *
+     * @throws Exception if the table was not able to be created.
+     */
     public void createFlightPath(){
         try {
             // Create a statement object that we can use for running various SQL statement commands against the database
             Statement statement = this.conn.createStatement();
 
-            //DROPPING FLIGHTPATH IF IT ALREADY EXISTS
+            //Dropping flightpath if it already exists
             DatabaseMetaData databaseMetadata = this.conn.getMetaData();
             ResultSet resultSet2 = databaseMetadata.getTables(null, null, "FLIGHTPATH", null);
             if (resultSet2.next()) {statement.execute("drop table flightpath");}
 
-            //CREATING A DATABASE TABLE
+            //Creating the table
             statement.execute("create table flightpath(" + "orderNo char(8), " + "fromLongitude double, " + "fromLatitude double, " + "angle integer, " + "toLongitude double, " + "toLatitude double)");
 
         } catch (SQLException throwables) {
@@ -98,6 +131,13 @@ public class Databases {
         }
     }
 
+    /**
+     * Adds the flight paths to a Json formatted file for testing.
+     *
+     * @param flightDetails flight paths to be added.
+     * @param ordDate date of which we are delivering the orders.
+     * @throws Exception
+     */
     public void addFlightPathToJson(ArrayList<FlightDetails> flightDetails, String ordDate){
         ArrayList<Feature> fList = new ArrayList<>();
         for (FlightDetails f : flightDetails) {
@@ -117,7 +157,6 @@ public class Databases {
         try {
             File file = new File("drone-" + ordDate + ".txt");
             FileWriter writer = new FileWriter("drone-" + ordDate + ".txt");
-
             writer.write(fc.toJson());
             writer.close();
         } catch (IOException e) {
@@ -125,6 +164,12 @@ public class Databases {
         }
     }
 
+    /**
+     * Adds the delivered orders to the Delivery table.
+     *
+     * @param movements the flight paths to be added.
+     * @throws Exception if the order could not be added.
+     */
     public void addFlightPathToDB(ArrayList<FlightDetails> movements){
         for (FlightDetails fd: movements){
             try{
@@ -144,12 +189,18 @@ public class Databases {
 
     }
 
+    /**
+     * Gets the information about the orders placed on a specific date from the orders table.
+     *
+     * @param ordDate date of orders.
+     * @return orders placed and their details.
+     * @throws Exception if unable to get the orders on the date.
+     */
     public ArrayList<Orders.OrderInfo> getOrders(String ordDate){
 
-        //CREATE array of orders
         ArrayList<Orders.OrderInfo> ordersList = new ArrayList<>();
 
-        //READ ORDERS OF SPECIFIC DATE
+        //Reading orders placed on a specific date
         final String coursesQuery = "select * from orders where deliveryDate=(?)";
 
         try {
@@ -171,12 +222,18 @@ public class Databases {
         return ordersList;
     }
 
+    /**
+     * Gets the items listed for each order.
+     *
+     * @param ordNo the order number we want to get the items for.
+     * @return items in that order.
+     * @throws Exception if unable to get the items for that order.
+     */
     public ArrayList<String> getItems(String ordNo){
 
-        //CREATE array of orders
         ArrayList<String> itemList = new ArrayList<>();
 
-        //READ ORDERS OF SPECIFIC DATE
+        //Reading items for a specific order
         final String coursesQuery = "select * from orderDetails where orderNo=(?)";
 
         try {

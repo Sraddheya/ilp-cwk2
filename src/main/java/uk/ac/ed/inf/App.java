@@ -1,10 +1,5 @@
 package uk.ac.ed.inf;
 
-import com.mapbox.geojson.Polygon;
-
-import java.awt.geom.Line2D;
-import java.lang.reflect.Array;
-import java.sql.SQLException;
 import java.util.*;
 
 public class App
@@ -13,7 +8,7 @@ public class App
     private static final String MACHINE = "localhost";
     private static final String WEBPORT = "9898";
     private static final String JDBCPORT = "9876";
-    private static final String TESTDATE = "2023-12-31";
+    private static final String TESTDATE = "2023-01-02";
 
     public static void main(String[] args) {
         //Connect to web server
@@ -82,10 +77,13 @@ public class App
                 drone.deliveredMovement.addAll(drone.tempMovement);
                 delivered.add(toDeliver.get(0));
                 toDeliver.remove(0);
-                drone.tempMovement = new ArrayList<>();
-                drone.movesToTempDest = 0;
+                //drone.tempMovement = new ArrayList<>();
+               // drone.movesToTempDest = 0;
                 System.out.println("move"
                 );
+                databases.addFlightPathToDB(drone.tempMovement);
+                drone.tempMovement = new ArrayList<>();
+                drone.movesToTempDest = 0;
             }
 
         }
@@ -93,9 +91,12 @@ public class App
         //Fly back to Appleton
         drone.remainingMoves = drone.remainingMoves - drone.movesToAppleton;
         drone.deliveredMovement.addAll(drone.appletonMovement);
+        databases.addFlightPathToDB(drone.appletonMovement);
+        drone.tempMovement = new ArrayList<>();
+        drone.movesToTempDest = 0;
 
         databases.addFlightPathToJson(drone.deliveredMovement, "1234");
-        databases.addFlightPathToDB(drone.deliveredMovement);
+        //databases.addFlightPathToDB(drone.deliveredMovement);
 
         ArrayList<Orders.OrderInfo> deliveredInfo = new ArrayList<>();
         ArrayList<Integer> costs = new ArrayList<>();
