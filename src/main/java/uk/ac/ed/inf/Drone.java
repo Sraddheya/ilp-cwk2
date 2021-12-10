@@ -181,7 +181,7 @@ public class Drone {
 
     /**
      * Getting the coordinate of the intermediate location the drone should fly to if it cannot fly to its
-     * destination without centering the no-fly zone. The first choice of the intermediate destination should
+     * destination without entering the no-fly zone. The first choice of the intermediate destination should
      * be a landmark, but in the event that no landmarks are reachable the drone should fly to a shop.
      *
      * @param currll current location of the drone
@@ -205,13 +205,13 @@ public class Drone {
         //Find the furthest shop
         ArrayList<LongLat> llshops = sortBuildingsByDistances(currll, this.shopCoordinates);
         while (!llshops.isEmpty()) {
-            LongLat closestShop = llshops.get(llshops.size()-1);
-            Line2D line = new Line2D.Double(currll.longitude, currll.latitude, closestShop.longitude, closestShop.latitude);
+            LongLat furthestShop = llshops.get(llshops.size()-1);
+            Line2D line = new Line2D.Double(currll.longitude, currll.latitude, furthestShop.longitude, furthestShop.latitude);
 
-            if (isIntersect(line, this.noFlyZones) || currll.closeTo(closestShop) || !closestShop.isConfined()) {
+            if (isIntersect(line, this.noFlyZones) || currll.closeTo(furthestShop) || !furthestShop.isConfined()) {
                 llshops.remove(llshops.size()-1);
             } else {
-                return closestShop;
+                return furthestShop;
             }
         }
 
@@ -222,27 +222,21 @@ public class Drone {
      * Get the flight path of the drone from the current to the destination location.
      *
      * @param orderNo order number of the order the drone is carrying
-     * @param curr current location
+     * @param currpoint current location
      * @param dest destination location
      * @param toIntermediate is the drone flying to an intermediate location? If so, the drone should not hover
      * @param toAppleton is the drone flying to Appleton? If so, the drone should not hover
      * @return Coordinates at the end of the flightpath
      */
-    private LongLat getMove(String orderNo, LongLat curr, LongLat dest, boolean toIntermediate, boolean toAppleton){
+    private LongLat getMove(String orderNo, LongLat currpoint, LongLat dest, boolean toIntermediate, boolean toAppleton){
+        LongLat curr = currpoint;
         ArrayList<Databases.FlightDetails> moves = new ArrayList<>();
         int numMoves = 0;
-        String tempOrderNo;
-
-        if(toAppleton){
-            tempOrderNo = "00000000";
-        } else {
-            tempOrderNo = orderNo;
-        }
 
         //Fly
         while (!curr.closeTo(dest)){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
-            newMove.orderNo = tempOrderNo;
+            newMove.orderNo = orderNo;
             newMove.fromLong = curr.longitude;
             newMove.fromLat = curr.latitude;
             newMove.angle = getAngle(curr, dest);
@@ -259,7 +253,7 @@ public class Drone {
         //Hover
         if (!toIntermediate && !toAppleton){
             Databases.FlightDetails newMove = new Databases.FlightDetails();
-            newMove.orderNo = tempOrderNo;
+            newMove.orderNo = orderNo;
             newMove.fromLong = curr.longitude;
             newMove.fromLat = curr.latitude;
             newMove.angle = -999;
@@ -308,6 +302,7 @@ public class Drone {
                 //Can move straight to the destination
                 shops.remove(0);
                 tempCurr = getMove(orderNo, tempCurr, tempDest, false, toAppleton);
+
             }
 
         }

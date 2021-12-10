@@ -107,13 +107,14 @@ public class App
             //No suitable flightpath could be calculated for the order
             if (tempCurr==null){
                 toDeliver.remove(0);
+                System.err.println("Could not calculate sufficient path.");
                 continue;
             }
 
             //Flying back to Appleton
-            shops.clear();
-            shops.add(AT_COORDINATES);
-            drone.getFlightPath(currentOrder.orderNo, curr, shops, true);
+            ArrayList<LongLat> appletonList = new ArrayList<>();
+            appletonList.add(AT_COORDINATES);
+            drone.getFlightPath("00000000", curr, appletonList, true);
 
             //Check if there are enough moves to fly back to Appleton
             int movesRemainingAfterDelivery = drone.getRemainingMoves() - drone.getMovesToTempDest();
@@ -135,6 +136,9 @@ public class App
         }
 
         //Add flightpath for flying back to Appleton
+        ArrayList<LongLat> appletonList = new ArrayList<>();
+        appletonList.add(AT_COORDINATES);
+        drone.getFlightPath("00000000", curr, appletonList, true);
         drone.addToDeliveredMovement(true);
 
         //Add flightpaths
