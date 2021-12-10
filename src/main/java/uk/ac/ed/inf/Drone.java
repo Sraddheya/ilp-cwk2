@@ -246,6 +246,10 @@ public class Drone {
             newMove.fromLong = curr.longitude;
             newMove.fromLat = curr.latitude;
             newMove.angle = getAngle(curr, dest);
+            Line2D line = new Line2D.Double(curr.longitude, curr.latitude, dest.longitude, dest.latitude);
+            if (isIntersect(line, this.noFlyZones)) {
+                newMove.angle -= 10;
+            }
             curr = curr.nextPosition(newMove.angle);
             newMove.toLong = curr.longitude;
             newMove.toLat = curr.latitude;
@@ -295,6 +299,10 @@ public class Drone {
             if (isIntersect(line, this.noFlyZones)) {
                 //Path is intersecting so we need to travel to a landmark instead
                 tempDest = getIntermediate(tempCurr);
+                //If there is no suitable intermediate skip the order;
+                if (tempDest == null) {
+                    return null;
+                }
                 tempCurr = getMove(orderNo, tempCurr, tempDest, true, toAppleton);
             } else {
                 //Can move straight to the destination

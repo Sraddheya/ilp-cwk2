@@ -104,6 +104,12 @@ public class App
             //Flying from curr to final destination after picking up items
             LongLat tempCurr = drone.getFlightPath(currentOrder.orderNo, curr, shops, false);
 
+            //No suitable flightpath could be calculated for the order
+            if (tempCurr==null){
+                toDeliver.remove(0);
+                continue;
+            }
+
             //Flying back to Appleton
             shops.clear();
             shops.add(AT_COORDINATES);
@@ -122,7 +128,6 @@ public class App
                 drone.addToDeliveredMovement(false);
                 delivered.add(toDeliver.get(0));
                 toDeliver.remove(0);
-                System.out.println("move");
                 drone.resetTempMovement();
                 drone.resetMovesToTempDest();
             }
@@ -133,6 +138,7 @@ public class App
         drone.addToDeliveredMovement(true);
 
         //Add flightpaths
+        System.out.println("Writing to database");
         databases.addFlightPathToJson(drone.getDeliveredMovement(), dateArray);
         databases.addFlightPathToDB(drone.getDeliveredMovement());
         System.out.println(drone.getRemainingMoves());
