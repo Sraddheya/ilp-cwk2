@@ -2,12 +2,31 @@ package uk.ac.ed.inf;
 
 import java.util.*;
 
+/**
+ * The main class which acts as the controller and is run when the jar file is executed.
+ */
+
 public class App
 {
+    /**
+     * Immutable LongLat object coordinate of Appleton tower. This should be the start and end location
+     */
     private static final LongLat AT_COORDINATES = new LongLat(-3.186874, 55.944494);
+    /**
+     * The machine where the webserver and the database will be running from.
+     */
     private static String MACHINE = "localhost";
+    /**
+     * The port where the web server will be running.
+     */
     private static String WEBPORT;
+    /**
+     * The port where the database will be running.
+     */
     private static String JDBCPORT;
+    /**
+     * The date of the orders we want to calculate the flightpath for.
+     */
     private static String DATE;
 
     public static void main(String[] args) {
@@ -63,7 +82,22 @@ public class App
             //Check destination and shops are in confinement area
             if (!orders.allConfined(shops)){
                 toDeliver.remove(0);
-                System.err.println("Order " + currentOrder.orderNo + " has a drop of location or shop to pick up an item from outside of the drone confinement area.");
+                System.err.println("Error: Order " + currentOrder.orderNo + " has a drop of location or shop to pick up an item from outside of the drone confinement area.");
+                continue;
+            }
+
+            //Check that the order has a minimum of one item and a maximum of four
+            if(currentOrder.items.size()<1 || currentOrder.items.size()>4){
+                toDeliver.remove(0);
+                System.err.println("Error: Order should have a minimum of one item, and a maximum of four. This order has " + currentOrder.items.size() + " .");
+                continue;
+            }
+
+            //Check that the order is made up of items from no more than two shops.
+            //Note that the delivery location has been added as the final element in the shops list.
+            if(currentOrder.shops.size()>3){
+                toDeliver.remove(0);
+                System.err.println("Error: Order can be made of items from no more than two shops. This order has items from " + (currentOrder.shops.size()-1) + " shops.");
                 continue;
             }
 

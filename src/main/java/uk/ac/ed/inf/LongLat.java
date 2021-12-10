@@ -9,7 +9,7 @@ public class LongLat {
      * Immutable constant variables to mark the edges of the confinement area.
      */
     private final double LONG_MAX = -3.184319;
-    private final double lONG_MIN = -3.192473;
+    private final double LONG_MIN = -3.192473;
     private final double LAT_MAX = 55.946233;
     private final double LAT_MIN = 55.942617;
 
@@ -38,7 +38,7 @@ public class LongLat {
      * @return true if the current point is within the confinement area.
      */
     protected boolean isConfined (){
-        if (longitude <= LONG_MAX && longitude >= lONG_MIN
+        if (longitude <= LONG_MAX && longitude >= LONG_MIN
             && latitude <= LAT_MAX && latitude >= LAT_MIN){
             return true;
         }

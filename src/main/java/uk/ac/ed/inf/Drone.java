@@ -8,14 +8,42 @@ import java.util.*;
  */
 
 public class Drone {
+    /**
+     * Keeps track of the number of moves remaining until the battery runs out.
+     */
     private int remainingMoves = 1500;
+    /**
+     * Keeps track of the number of moves the drone would take to return to Appleton
+     * form its current position.
+     */
     private int movesToAppleton = 0;
+    /**
+     * Keeps track of the number of moves the drone would take to deliver an order.
+     */
     private int movesToTempDest = 0;
+    /**
+     * FlightPath of
+     */
     private ArrayList<Databases.FlightDetails> deliveredMovement = new ArrayList<>();
+    /**
+     * FlightPath of the drone if it returned to Appleton.
+     */
     private ArrayList<Databases.FlightDetails> appletonMovement = new ArrayList<>();
+    /**
+     * FlightPath of the drone if it delivered the order.
+     */
     private ArrayList<Databases.FlightDetails> tempMovement = new ArrayList<>();
+    /**
+     * Perimeter of the no-fly zone as Line2D objects
+     */
     private ArrayList<Line2D> noFlyZones = new ArrayList<>();
+    /**
+     * LongLat object coordinates of the landmarks.
+     */
     private ArrayList<LongLat> landmarkCoordinates = new ArrayList<>();
+    /**
+     * LongLat object coordinates of all the shops.
+     */
     private ArrayList<LongLat> shopCoordinates = new ArrayList<>();
 
     /**
