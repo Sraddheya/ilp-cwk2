@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="uk.ac.ed.inf.AppTest" time="0.021" tests="16" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="uk.ac.ed.inf.AppTest" time="0.034" tests="16" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="14"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="GB"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-14-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/surefire/surefirebooter9859343551808340310.jar /afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/surefire 2021-12-10T12-45-33_599-jvmRun1 surefire17454149390422831439tmp surefire_012594118899781252031tmp"/>
+    <property name="sun.java.command" value="/afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/surefire/surefirebooter4373013678467563822.jar /afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/surefire 2021-12-10T14-07-37_354-jvmRun1 surefire7462504585121856404tmp surefire_015961969967063564695tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/test-classes:/afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/classes:/afs/inf.ed.ac.uk/user/s19/s1908227/.m2/repository/org/apache/derby/derbyclient/10.15.2.0/derbyclient-10.15.2.0.jar:/afs/inf.ed.ac.uk/user/s19/s1908227/.m2/repository/org/apache/derby/derbyshared/10.15.2.0/derbyshared-10.15.2.0.jar:/afs/inf.ed.ac.uk/user/s19/s1908227/.m2/repository/com/mapbox/mapboxsdk/mapbox-sdk-geojson/5.8.0/mapbox-sdk-geojson-5.8.0.jar:/afs/inf.ed.ac.uk/user/s19/s1908227/.m2/repository/junit/junit/4.11/junit-4.11.jar:/afs/inf.ed.ac.uk/user/s19/s1908227/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/afs/inf.ed.ac.uk/user/s19/s1908227/.m2/repository/com/google/code/gson/gson/2.8.8/gson-2.8.8.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -27,7 +27,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/surefire/surefirebooter9859343551808340310.jar"/>
+    <property name="surefire.real.class.path" value="/afs/inf.ed.ac.uk/user/s19/s1908227/IdeaProjects/ilp/target/surefire/surefirebooter4373013678467563822.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="14.0.2+12-Ubuntu-120.04"/>
     <property name="user.name" value="s1908227"/>
@@ -51,19 +51,19 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="58.0"/>
   </properties>
-  <testcase name="testCloseToFalse" classname="uk.ac.ed.inf.AppTest" time="0.004"/>
-  <testcase name="testAngle20" classname="uk.ac.ed.inf.AppTest" time="0"/>
+  <testcase name="testCloseToFalse" classname="uk.ac.ed.inf.AppTest" time="0.001"/>
+  <testcase name="testAngle20" classname="uk.ac.ed.inf.AppTest" time="0.001"/>
   <testcase name="testAngle50" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testAngle90" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testCloseToTrue" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testAngle140" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testAngle190" classname="uk.ac.ed.inf.AppTest" time="0"/>
-  <testcase name="testAngle260" classname="uk.ac.ed.inf.AppTest" time="0"/>
+  <testcase name="testAngle260" classname="uk.ac.ed.inf.AppTest" time="0.001"/>
   <testcase name="testAngle300" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testAngle350" classname="uk.ac.ed.inf.AppTest" time="0"/>
-  <testcase name="testAngle999" classname="uk.ac.ed.inf.AppTest" time="0"/>
+  <testcase name="testAngle999" classname="uk.ac.ed.inf.AppTest" time="0.001"/>
   <testcase name="testAngle0" classname="uk.ac.ed.inf.AppTest" time="0"/>
-  <testcase name="testIsConfinedFalse" classname="uk.ac.ed.inf.AppTest" time="0"/>
+  <testcase name="testIsConfinedFalse" classname="uk.ac.ed.inf.AppTest" time="0.001"/>
   <testcase name="testIsConfinedTrueA" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testIsConfinedTrueB" classname="uk.ac.ed.inf.AppTest" time="0"/>
   <testcase name="testDistanceTo" classname="uk.ac.ed.inf.AppTest" time="0"/>

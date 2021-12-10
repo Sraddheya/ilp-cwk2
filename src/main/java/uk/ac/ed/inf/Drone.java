@@ -222,14 +222,14 @@ public class Drone {
      * Get the flight path of the drone from the current to the destination location.
      *
      * @param orderNo order number of the order the drone is carrying
-     * @param currpoint current location
+     * @param currPoint current location
      * @param dest destination location
      * @param toIntermediate is the drone flying to an intermediate location? If so, the drone should not hover
      * @param toAppleton is the drone flying to Appleton? If so, the drone should not hover
      * @return Coordinates at the end of the flightpath
      */
-    private LongLat getMove(String orderNo, LongLat currpoint, LongLat dest, boolean toIntermediate, boolean toAppleton){
-        LongLat curr = currpoint;
+    private LongLat getMove(String orderNo, LongLat currPoint, LongLat dest, boolean toIntermediate, boolean toAppleton){
+        LongLat curr = currPoint;
         ArrayList<Databases.FlightDetails> moves = new ArrayList<>();
         int numMoves = 0;
 
@@ -240,9 +240,12 @@ public class Drone {
             newMove.fromLong = curr.longitude;
             newMove.fromLat = curr.latitude;
             newMove.angle = getAngle(curr, dest);
-            Line2D line = new Line2D.Double(curr.longitude, curr.latitude, dest.longitude, dest.latitude);
-            if (isIntersect(line, this.noFlyZones)) {
+            LongLat tempDest = curr.nextPosition(newMove.angle);
+            Line2D line = new Line2D.Double(curr.longitude, curr.latitude, tempDest.longitude, tempDest.latitude);
+            while (isIntersect(line, this.noFlyZones)) {
                 newMove.angle -= 10;
+                tempDest = curr.nextPosition(newMove.angle);
+                line = new Line2D.Double(curr.longitude, curr.latitude, tempDest.longitude, tempDest.latitude);
             }
             curr = curr.nextPosition(newMove.angle);
             newMove.toLong = curr.longitude;
